@@ -7,10 +7,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
-        /* === ENHANCED 360° STYLES === */
+        /* === BASE STYLES === */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { display: flex; flex-direction: column; height: 100vh; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: #e6e6e6; overflow: hidden; }
         
+        /* === HEADER === */
         .header { 
             background: rgba(0, 0, 0, 0.7); 
             padding: 15px 20px; 
@@ -22,49 +23,61 @@
         }
         .header h1 { 
             color: #00b4d8; 
-            font-size: 2.5rem; 
+            font-size: 2rem; 
             display: flex;
             align-items: center;
             gap: 10px;
         }
-        .header-controls { display: flex; gap: 10px; }
+        .header-controls { 
+            display: flex; 
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
         
+        /* === MAIN LAYOUT === */
         .main-container { 
             display: flex; 
             flex: 1; 
             overflow: hidden; 
+            flex-direction: column;
+            height: calc(100vh - 80px);
         }
         
+        /* === LEFT PANEL === */
         .left-panel { 
-            width: 320px; 
+            width: 100%;
             background: rgba(30, 30, 46, 0.9); 
-            padding: 20px; 
+            padding: 15px; 
             overflow-y: auto; 
-            border-right: 1px solid #444; 
-            flex-shrink: 0; 
+            border-bottom: 1px solid #444;
+            max-height: 40vh;
+            flex-shrink: 0;
         }
         .panel-section { 
-            margin-bottom: 25px; 
-            padding-bottom: 20px; 
+            margin-bottom: 20px; 
+            padding-bottom: 15px; 
             border-bottom: 1px solid #444; 
         }
         .panel-section h3 { 
             color: #00b4d8; 
-            margin-bottom: 15px; 
+            margin-bottom: 12px; 
             display: flex; 
             align-items: center; 
-            gap: 10px; 
+            gap: 8px; 
+            font-size: 1.1rem;
         }
         
+        /* === UPLOAD AREA === */
         .upload-area { 
             border: 3px dashed #00b4d8; 
             border-radius: 10px; 
-            padding: 30px 20px; 
+            padding: 20px 15px; 
             text-align: center; 
             cursor: pointer; 
             transition: all 0.3s; 
             background: rgba(0, 180, 216, 0.05); 
-            margin-bottom: 20px; 
+            margin-bottom: 15px; 
         }
         .upload-area.dragover { 
             background: rgba(0, 180, 216, 0.2); 
@@ -75,19 +88,20 @@
             border-color: #90e0ef; 
         }
         .upload-area i { 
-            font-size: 48px; 
+            font-size: 36px; 
             color: #00b4d8; 
-            margin-bottom: 15px; 
+            margin-bottom: 10px; 
         }
-        .upload-area p { margin: 10px 0; }
+        .upload-area p { margin: 8px 0; font-size: 0.9rem; }
         .upload-area .file-info { 
-            font-size: 0.9rem; 
+            font-size: 0.8rem; 
             color: #aaa; 
         }
         
+        /* === BUTTONS === */
         .button { 
             display: inline-block; 
-            padding: 12px 20px; 
+            padding: 10px 15px; 
             margin: 5px 0; 
             border: none; 
             border-radius: 6px; 
@@ -98,6 +112,7 @@
             transition: all 0.3s; 
             text-align: center; 
             text-decoration: none;
+            font-size: 0.9rem;
         }
         .button:hover { 
             background: #0077b6; 
@@ -115,30 +130,32 @@
         .button.danger:hover { background: #d00000; }
         .button.warning { background: #f8961e; color: #000; }
         .button.warning:hover { background: #e68a1b; }
-        .button i { margin-right: 8px; }
+        .button i { margin-right: 6px; }
         
+        /* === MARKER TYPE SELECTOR === */
         .marker-type-selector { 
             display: grid; 
             grid-template-columns: repeat(3, 1fr); 
-            gap: 10px; 
-            margin-bottom: 15px; 
+            gap: 8px; 
+            margin-bottom: 12px; 
         }
         .marker-type { 
-            padding: 10px; 
+            padding: 8px; 
             border: 2px solid transparent; 
             border-radius: 6px; 
             text-align: center; 
             cursor: pointer; 
             transition: all 0.2s; 
             background: rgba(255, 255, 255, 0.05); 
+            font-size: 0.8rem;
         }
         .marker-type.selected { 
             border-color: #00b4d8; 
             background: rgba(0, 180, 216, 0.1); 
         }
         .marker-type i { 
-            font-size: 20px; 
-            margin-bottom: 5px; 
+            font-size: 16px; 
+            margin-bottom: 4px; 
             display: block; 
         }
         .marker-type.info { color: #4cc9f0; }
@@ -148,32 +165,35 @@
         .marker-type.warning { color: #f8961e; }
         .marker-type.question { color: #2a9d8f; }
         
+        /* === MARKER FORM === */
         .marker-form input, 
         .marker-form textarea { 
             width: 100%; 
-            padding: 10px; 
-            margin-bottom: 12px; 
+            padding: 8px; 
+            margin-bottom: 10px; 
             border: 1px solid #555; 
             border-radius: 4px; 
             background: rgba(255, 255, 255, 0.1); 
             color: white; 
+            font-size: 0.9rem;
         }
         .marker-form textarea { 
-            height: 80px; 
+            height: 70px; 
             resize: vertical; 
         }
         .url-field { display: none; }
         .url-field.visible { display: block; }
         
+        /* === MARKER LIST === */
         .marker-list { 
-            max-height: 300px; 
+            max-height: 150px; 
             overflow-y: auto; 
         }
         .marker-item { 
             background: rgba(255, 255, 255, 0.05); 
             border-left: 4px solid #00b4d8; 
-            padding: 12px; 
-            margin-bottom: 10px; 
+            padding: 10px; 
+            margin-bottom: 8px; 
             border-radius: 4px; 
             cursor: pointer; 
             transition: all 0.2s; 
@@ -196,18 +216,19 @@
             font-weight: bold; 
             display: flex; 
             align-items: center; 
-            gap: 8px; 
+            gap: 6px; 
+            font-size: 0.9rem;
         }
         .marker-item-type { 
-            font-size: 0.8rem; 
-            padding: 2px 8px; 
+            font-size: 0.7rem; 
+            padding: 2px 6px; 
             border-radius: 10px; 
             background: rgba(255, 255, 255, 0.1); 
         }
         .marker-item-description { 
-            font-size: 0.9rem; 
+            font-size: 0.8rem; 
             color: #aaa; 
-            margin-top: 5px; 
+            margin-top: 4px; 
             overflow: hidden; 
             text-overflow: ellipsis; 
             white-space: nowrap; 
@@ -215,13 +236,13 @@
         .marker-item-actions { 
             display: flex; 
             gap: 5px; 
-            margin-top: 10px; 
+            margin-top: 8px; 
         }
         .marker-action-btn { 
-            padding: 4px 10px; 
+            padding: 3px 8px; 
             border: none; 
             border-radius: 4px; 
-            font-size: 0.8rem; 
+            font-size: 0.7rem; 
             cursor: pointer; 
         }
         .marker-action-btn.edit { 
@@ -233,78 +254,134 @@
             color: white; 
         }
         
+        /* === VIEWER === */
         .viewer-container { 
             flex: 1; 
             position: relative; 
             overflow: hidden; 
+            width: 100%;
+            height: calc(60vh - 20px);
         }
-        
         #viewer { 
             width: 100%; 
             height: 100%; 
         }
         
-        /* NEW: Dragging state for 3D markers */
-        .marker.dragging {
-            opacity: 0.8 !important;
-            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.7));
-            transform: scale(1.2) !important;
-            cursor: grabbing !important;
+        /* === INSTRUCTION OVERLAY (From Version 1) === */
+        .instructions {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            z-index: 20;
+            border: 2px solid #00b4d8;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+        }
+        .instructions h3 {
+            color: #00b4d8;
+            margin-bottom: 20px;
+        }
+        .instructions p {
+            margin: 10px 0;
+            line-height: 1.5;
         }
         
-        /* REMOVED: Instructions overlay from editor - only for exported files */
-        .instructions { 
-            display: none; /* Completely remove from editor */
+        /* === PLACEMENT STATUS (From Version 1) === */
+        .placement-status {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(0, 180, 216, 0.1);
+            border-radius: 4px;
+            text-align: center;
+            display: none;
+            border: 1px solid rgba(0, 180, 216, 0.3);
+        }
+        .placement-status i {
+            margin-right: 8px;
         }
         
-        /* In-world marker info panel */
+        /* === CURSOR FOR MARKER PLACEMENT === */
+        .marker-cursor {
+            cursor: crosshair !important;
+        }
+        
+        /* === PREVIEW INDICATOR (From Version 1) === */
+        .preview-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            border: 3px solid #00ff00;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 100;
+            opacity: 0.7;
+            display: none;
+            box-shadow: 0 0 10px #00ff00;
+        }
+        .preview-indicator::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 10px;
+            height: 10px;
+            background: #00ff00;
+            border-radius: 50%;
+        }
+        
+        /* === IN-WORLD MARKER INFO === */
         .marker-info-panel {
             position: absolute;
             background: rgba(0, 0, 0, 0.95);
             color: white;
-            padding: 15px;
+            padding: 12px;
             border-radius: 8px;
             border-left: 4px solid #00b4d8;
-            max-width: 300px;
-            min-width: 250px;
+            max-width: 250px;
+            min-width: 200px;
             box-shadow: 0 5px 25px rgba(0, 0, 0, 0.7);
             z-index: 1000;
             pointer-events: auto;
             backdrop-filter: blur(5px);
             transition: opacity 0.3s ease;
-            font-size: 14px;
+            font-size: 13px;
         }
-        
         .marker-info-panel h4 {
             color: #00b4d8;
-            margin: 0 0 10px 0;
-            font-size: 16px;
+            margin: 0 0 8px 0;
+            font-size: 14px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
-        
         .marker-info-panel p {
-            margin: 8px 0;
+            margin: 6px 0;
             line-height: 1.4;
         }
-        
         .marker-info-panel a {
             color: #4cc9f0;
             text-decoration: none;
             display: inline-block;
-            margin-top: 10px;
-            padding: 6px 12px;
+            margin-top: 8px;
+            padding: 5px 10px;
             background: rgba(76, 201, 240, 0.1);
             border-radius: 4px;
             transition: background 0.3s;
             word-break: break-all;
+            font-size: 12px;
         }
-        
         .marker-info-panel a:hover {
             background: rgba(76, 201, 240, 0.2);
         }
-        
         .marker-info-panel .close-btn {
             position: absolute;
             top: 5px;
@@ -313,57 +390,53 @@
             border: none;
             color: #aaa;
             cursor: pointer;
-            font-size: 18px;
-            width: 24px;
-            height: 24px;
+            font-size: 16px;
+            width: 20px;
+            height: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 50%;
             transition: all 0.2s;
         }
-        
         .marker-info-panel .close-btn:hover {
             background: rgba(255, 255, 255, 0.1);
             color: white;
         }
         
-        /* Project item styles */
+        /* === PROJECT ITEMS === */
         .project-item {
             background: rgba(255, 255, 255, 0.05);
             border-left: 4px solid #2a9d8f;
-            padding: 12px;
-            margin-bottom: 10px;
+            padding: 10px;
+            margin-bottom: 8px;
             border-radius: 4px;
             cursor: pointer;
             transition: all 0.2s;
         }
-        
         .project-item:hover {
             background: rgba(255, 255, 255, 0.1);
-            transform: translateX(5px);
+            transform: translateX(3px);
         }
-        
         .project-item-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        
         .project-item-title {
             font-weight: bold;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            font-size: 0.9rem;
         }
-        
         .project-item-meta {
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             color: #aaa;
-            margin-top: 5px;
+            margin-top: 4px;
         }
         
-        /* Modals */
+        /* === MODALS === */
         .modal-overlay { 
             position: fixed; 
             top: 0; 
@@ -378,9 +451,9 @@
         }
         .modal { 
             background: #1a1a2e; 
-            padding: 30px; 
+            padding: 20px; 
             border-radius: 10px; 
-            max-width: 800px; 
+            max-width: 90vw; 
             width: 90%; 
             max-height: 80vh; 
             overflow-y: auto; 
@@ -388,155 +461,154 @@
         }
         .modal h3 { 
             color: #00b4d8; 
-            margin-bottom: 20px; 
+            margin-bottom: 15px; 
             text-align: center; 
+            font-size: 1.2rem;
         }
         .modal textarea { 
             width: 100%; 
-            height: 400px; 
-            padding: 15px; 
+            height: 300px; 
+            padding: 12px; 
             background: rgba(255, 255, 255, 0.05); 
             border: 1px solid #444; 
             border-radius: 5px; 
             color: white; 
             font-family: monospace; 
-            font-size: 12px; 
-            margin-bottom: 20px; 
+            font-size: 11px; 
+            margin-bottom: 15px; 
             resize: none; 
             white-space: pre; 
             overflow-x: auto; 
         }
-        .modal-buttons { display: flex; gap: 10px; justify-content: center; }
+        .modal-buttons { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
         
-        /* Hidden class */
-        .hidden { display: none !important; }
-        .visible { display: block !important; }
-        
-        /* Controls */
+        /* === CONTROLS === */
         .viewer-controls { 
             position: absolute; 
-            bottom: 20px; 
+            bottom: 15px; 
             left: 50%; 
             transform: translateX(-50%); 
             display: flex; 
-            gap: 10px; 
+            gap: 8px; 
             z-index: 10; 
         }
         .control-btn { 
             background: rgba(0, 0, 0, 0.7); 
             color: white; 
             border: none; 
-            width: 50px; 
-            height: 50px; 
+            width: 40px; 
+            height: 40px; 
             border-radius: 50%; 
             cursor: pointer; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            font-size: 1.2rem; 
+            font-size: 1rem; 
             transition: all 0.3s; 
         }
         .control-btn:hover { 
             background: rgba(0, 180, 216, 0.8); 
             transform: scale(1.1); 
         }
+        .control-btn.active {
+            background: rgba(0, 180, 216, 0.8);
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(0, 180, 216, 0.5);
+        }
         
-        /* Utility classes */
-        .search-box { margin-bottom: 15px; }
+        /* === UTILITY === */
+        .search-box { margin-bottom: 12px; }
         .search-box input { 
             width: 100%; 
-            padding: 10px; 
+            padding: 8px; 
             border-radius: 4px; 
             background: rgba(255, 255, 255, 0.1); 
             border: 1px solid #555; 
             color: white; 
+            font-size: 0.9rem;
         }
-        .form-buttons { display: flex; flex-wrap: wrap; gap: 10px; }
+        .form-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
         .shortcut-hint { 
-            font-size: 0.8rem; 
+            font-size: 0.7rem; 
             color: #aaa; 
-            margin-top: 10px; 
+            margin-top: 8px; 
             text-align: center; 
         }
-        .history-controls { display: flex; gap: 10px; margin-top: 10px; }
+        .history-controls { display: flex; gap: 8px; margin-top: 8px; }
         
-        /* Link preview styles in info panels */
-        .link-preview { 
-            margin-top: 10px; 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-            border-radius: 6px; 
-            overflow: hidden; 
-            background: rgba(255, 255, 255, 0.05); 
+        /* === MARKER PLACEMENT HINT === */
+        .placement-hint {
+            margin-top: 10px;
+            padding: 8px;
+            background: rgba(0, 180, 216, 0.05);
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: #aaa;
+            text-align: center;
+            border-left: 3px solid #00b4d8;
         }
-        .link-preview a { 
-            text-decoration: none; 
-            color: inherit; 
-            display: block; 
-        }
-        .link-preview-image { 
-            width: 100%; 
-            height: 120px; 
-            object-fit: cover; 
-            background: linear-gradient(45deg, #1a1a2e, #16213e); 
-        }
-        .link-preview-content { 
-            padding: 10px; 
-        }
-        .link-preview-title { 
-            font-weight: bold; 
-            margin: 0 0 6px 0; 
-            font-size: 13px; 
-            color: #e6e6e6; 
-        }
-        .link-preview-description { 
-            color: #aaa; 
-            font-size: 11px; 
-            margin: 0; 
-            line-height: 1.4; 
-        }
-        .link-preview-domain { 
-            color: #888; 
-            font-size: 10px; 
-            margin-top: 6px; 
-            display: flex; 
-            align-items: center; 
-        }
-        .link-preview-domain i { 
-            margin-right: 4px; 
-            font-size: 9px; 
+        .placement-hint i {
+            margin-right: 5px;
         }
         
-        @media (max-width: 1024px) { 
-            .main-container { flex-direction: column; } 
-            .left-panel { width: 100%; max-height: 40vh; } 
+        /* === RESPONSIVE === */
+        @media (min-width: 768px) {
+            .main-container { flex-direction: row; height: calc(100vh - 80px); }
+            .left-panel { 
+                width: 320px; 
+                max-height: none;
+                height: 100%;
+                border-right: 1px solid #444;
+                border-bottom: none;
+            }
+            .viewer-container { width: calc(100% - 320px); height: 100%; }
+            .header h1 { font-size: 2.5rem; }
+            .button { padding: 12px 20px; font-size: 1rem; }
+            .panel-section h3 { font-size: 1.3rem; }
+            .upload-area { padding: 30px 20px; }
+            .upload-area i { font-size: 48px; }
+            .upload-area p { font-size: 1rem; }
+            .marker-type-selector { grid-template-columns: repeat(3, 1fr); }
+            .marker-type { padding: 10px; font-size: 0.9rem; }
+            .marker-type i { font-size: 20px; }
+            .marker-list { max-height: 300px; }
+            .marker-item { padding: 12px; }
+            .marker-item-title { font-size: 1rem; }
+            .marker-info-panel { max-width: 300px; min-width: 250px; font-size: 14px; }
+            .marker-info-panel h4 { font-size: 16px; }
+            .modal { max-width: 800px; padding: 30px; }
+            .modal h3 { font-size: 1.5rem; }
+            .modal textarea { height: 400px; font-size: 12px; }
+            .control-btn { width: 50px; height: 50px; font-size: 1.2rem; }
         }
-        @media (max-width: 768px) { 
-            .header { flex-direction: column; gap: 10px; text-align: center; } 
-            .marker-type-selector { grid-template-columns: repeat(2, 1fr); } 
-            .button { padding: 10px 15px; } 
-        }
+        
+        /* === VISIBILITY === */
+        .hidden { display: none !important; }
+        .visible { display: block !important; }
     </style>
 </head>
 <body>
     <!-- HEADER -->
     <div class="header">
-        <h1><i class="fas fa-globe-americas"></i> 360° Image Marker Tool</h1>
+        <h1><i class="fas fa-globe-americas"></i> 360° Marker Tool</h1>
         <div class="header-controls">
             <button class="button secondary" id="saveProjectBtn">
-                <i class="fas fa-save"></i> Save Project
+                <i class="fas fa-save"></i> Save
             </button>
             <button class="button secondary" id="loadProjectBtn">
-                <i class="fas fa-folder-open"></i> Load Project
+                <i class="fas fa-folder-open"></i> Load
             </button>
             <button class="button secondary" id="exportBtn">
-                <i class="fas fa-file-export"></i> Export HTML
+                <i class="fas fa-file-export"></i> Export
             </button>
         </div>
     </div>
 
+    <!-- MAIN CONTAINER -->
     <div class="main-container">
         <!-- LEFT PANEL -->
         <div class="left-panel">
+            <!-- IMAGE UPLOAD -->
             <div class="panel-section">
                 <h3><i class="fas fa-upload"></i> Upload 360° Image</h3>
                 <div class="upload-area" id="uploadArea">
@@ -551,6 +623,7 @@
                 </div>
             </div>
 
+            <!-- MARKER CREATION -->
             <div class="panel-section">
                 <h3><i class="fas fa-map-marker-alt"></i> Add Marker</h3>
                 <div class="marker-type-selector" id="markerTypeSelector">
@@ -562,7 +635,19 @@
                     <div class="marker-type question" data-type="question"><i class="fas fa-question-circle"></i><span>Question</span></div>
                 </div>
                 
-                <div class="marker-form" id="markerForm">
+                <!-- Placement hint (like Version 1) -->
+                <div class="placement-hint">
+                    <i class="fas fa-mouse-pointer"></i> Select marker type above, then click on the image to place it
+                </div>
+                
+                <!-- Placement status (like Version 1) -->
+                <div class="placement-status" id="placementStatus">
+                    <i class="fas fa-mouse-pointer"></i> <strong>Ready to place marker</strong>
+                    <p style="font-size: 0.8rem; margin-top: 4px;">Click anywhere on the image to place marker</p>
+                </div>
+                
+                <!-- Marker form -->
+                <div class="marker-form hidden" id="markerForm">
                     <input type="text" id="markerTitle" placeholder="Marker Title" maxlength="50">
                     <textarea id="markerDescription" placeholder="Description (optional)"></textarea>
                     <input type="url" id="markerLink" class="url-field" placeholder="https://example.com">
@@ -577,6 +662,7 @@
                 </div>
             </div>
 
+            <!-- MARKER LIST -->
             <div class="panel-section">
                 <h3><i class="fas fa-list"></i> Markers (<span id="markerListCount">0</span>)</h3>
                 <div class="search-box">
@@ -585,9 +671,10 @@
                 <div class="marker-list" id="markerList">
                     <div class="empty-state">No markers added</div>
                 </div>
-                <button class="button danger" id="clearMarkersBtn"><i class="fas fa-trash"></i> Clear All Markers</button>
+                <button class="button danger full" id="clearMarkersBtn"><i class="fas fa-trash"></i> Clear All Markers</button>
             </div>
 
+            <!-- TOOLS -->
             <div class="panel-section">
                 <h3><i class="fas fa-project-diagram"></i> Tools</h3>
                 <div class="history-controls">
@@ -608,13 +695,25 @@
         <div class="viewer-container">
             <div id="viewer"></div>
             
-            <!-- REMOVED: Instructions overlay from editor - only for exported files -->
-            <!-- No instructions div here - it's only in the exported HTML -->
-            
-            <div class="viewer-controls">
-                <button class="control-btn" id="placeMarkerBtn" title="Place Marker Mode">
-                    <i class="fas fa-map-marker-alt"></i>
+            <!-- Instruction overlay (like Version 1) -->
+            <div class="instructions" id="instructions">
+                <i class="fas fa-globe-americas" style="font-size: 48px; color: #00b4d8; margin-bottom: 20px;"></i>
+                <h3>Welcome to the 360° Image Marker Tool</h3>
+                <p>1. Upload a 360° panoramic image (equirectangular format)</p>
+                <p>2. Select marker type from the left panel</p>
+                <p>3. Click on the image to place markers</p>
+                <p>4. Customize markers with titles, descriptions, and URLs</p>
+                <p>5. Export as a standalone HTML file for any device</p>
+                <button class="button" id="closeInstructions" style="margin-top: 20px;">
+                    <i class="fas fa-play"></i> Get Started
                 </button>
+            </div>
+            
+            <!-- Preview indicator (like Version 1) -->
+            <div class="preview-indicator" id="previewIndicator"></div>
+            
+            <!-- Viewer controls (simplified - no placement button needed) -->
+            <div class="viewer-controls">
                 <button class="control-btn" id="resetViewBtn" title="Reset View">
                     <i class="fas fa-redo"></i>
                 </button>
@@ -625,7 +724,7 @@
         </div>
     </div>
 
-    <!-- EXPORT MODAL -->
+    <!-- MODALS -->
     <div class="modal-overlay hidden" id="exportModal">
         <div class="modal">
             <h3><i class="fas fa-file-export"></i> Export as HTML</h3>
@@ -638,11 +737,9 @@
         </div>
     </div>
 
-    <!-- SAVE/LOAD MODAL -->
     <div class="modal-overlay hidden" id="projectModal">
         <div class="modal" style="max-width: 500px;">
             <h3><i class="fas fa-project-diagram"></i> Project Management</h3>
-            
             <div class="panel-section" style="margin-bottom: 20px; border: 1px solid #444; padding: 15px; border-radius: 5px;">
                 <h4><i class="fas fa-save"></i> Save Current Project</h4>
                 <p style="margin-bottom: 15px; color: #aaa; font-size: 0.9rem;">
@@ -666,11 +763,9 @@
                     <input type="file" id="projectFileInput" accept=".json" style="display: none;">
                 </div>
                 
-                <div id="savedProjectsList" style="max-height: 200px; overflow-y: auto; margin-top: 15px;">
-                    <!-- Saved projects will be listed here -->
-                </div>
+                <div id="savedProjectsList" style="max-height: 200px; overflow-y: auto; margin-top: 15px;"></div>
                 
-                <button class="button danger" id="clearProjectsBtn" style="margin-top: 15px; width: 100%;">
+                <button class="button danger full" id="clearProjectsBtn" style="margin-top: 15px;">
                     <i class="fas fa-trash"></i> Clear All Saved Projects
                 </button>
             </div>
@@ -683,9 +778,9 @@
         </div>
     </div>
 
-<script>
-// ====================== ENHANCED 360° APPLICATION ======================
-class AppState360 {
+    <script>
+// ==================== APPLICATION CORE ====================
+class AppState {
     constructor() {
         this.markers = [];
         this.currentImage = null;
@@ -694,11 +789,10 @@ class AppState360 {
         this.history = [];
         this.historyIndex = -1;
         this.autoRotate = false;
-        this.draggingMarker = null;
-        this.dragStartPoint = new THREE.Vector2();
-        this.markerStartPosition = new THREE.Vector3();
-        this.activeInfoPanel = null;
         this.placementMode = false;
+        this.activeInfoPanel = null;
+        this.isPlacingMarker = false; // New: track if we're in placement mode
+        
         this.markerThemes = {
             info: { color: 0x4cc9f0, icon: 'fa-info-circle' },
             link: { color: 0x4361ee, icon: 'fa-link' },
@@ -780,15 +874,270 @@ class AppState360 {
     }
 }
 
-class MarkerManager360 {
-    constructor(state, scene) {
+// ==================== THREE.JS MANAGER ====================
+class ThreeJSManager {
+    constructor(state) {
         this.state = state;
-        this.scene = scene;
-        this.raycaster = new THREE.Raycaster();
-        this.mouse = new THREE.Vector2();
+        this.scene = null;
+        this.camera = null;
+        this.renderer = null;
+        this.sphere = null;
         this.previewMarker = null;
-        this.isDragging = false;
-        this.draggingMarker = null;
+        this.markerObjects = new Map();
+        
+        this.isMouseDown = false;
+        this.previousMousePosition = { x: 0, y: 0 };
+        this.targetRotation = new THREE.Euler(0, 0, 0, 'YXZ');
+        
+        this.init();
+    }
+
+    init() {
+        this.scene = new THREE.Scene();
+        this.camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+        this.camera.position.set(0, 0, 0.1);
+        
+        this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        const viewer = document.getElementById('viewer');
+        this.renderer.setSize(viewer.clientWidth, viewer.clientHeight);
+        this.renderer.setPixelRatio(window.devicePixelRatio);
+        viewer.appendChild(this.renderer.domElement);
+        
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        this.scene.add(ambientLight);
+        
+        this.setupControls();
+        window.addEventListener('resize', () => this.onWindowResize());
+        this.animate();
+        
+        // Load a placeholder until user uploads
+        this.loadPlaceholderImage();
+    }
+
+    loadPlaceholderImage() {
+        // Simple gradient as placeholder
+        const canvas = document.createElement('canvas');
+        canvas.width = 2048;
+        canvas.height = 1024;
+        const ctx = canvas.getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+        gradient.addColorStop(0, '#1a1a2e');
+        gradient.addColorStop(1, '#16213e');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        const texture = new THREE.CanvasTexture(canvas);
+        this.createSphereFromTexture(texture);
+    }
+
+    createSphereFromTexture(texture) {
+        if (this.sphere) {
+            this.scene.remove(this.sphere);
+            if (this.sphere.material.map) this.sphere.material.map.dispose();
+            this.sphere.material.dispose();
+            this.sphere.geometry.dispose();
+        }
+        
+        const geometry = new THREE.SphereGeometry(500, 60, 40);
+        geometry.scale(-1, 1, 1);
+        const material = new THREE.MeshBasicMaterial({ map: texture });
+        this.sphere = new THREE.Mesh(geometry, material);
+        this.scene.add(this.sphere);
+    }
+
+    loadImage(imageUrl) {
+        new THREE.TextureLoader().load(imageUrl, 
+            (texture) => {
+                this.createSphereFromTexture(texture);
+                document.getElementById('instructions').classList.add('hidden');
+            },
+            undefined,
+            (error) => {
+                console.error('Error loading image:', error);
+                alert('Failed to load image. Please try another file.');
+            }
+        );
+    }
+
+    setupControls() {
+        const rendererDom = this.renderer.domElement;
+        
+        rendererDom.addEventListener('mousedown', (e) => {
+            this.isMouseDown = true;
+            this.previousMousePosition = { x: e.clientX, y: e.clientY };
+            
+            // If we're placing a marker, handle placement
+            if (this.state.isPlacingMarker && e.button === 0) {
+                this.placeMarkerAtClick(e);
+                return;
+            }
+            
+            // Otherwise check for marker clicks
+            this.handleMarkerClick(e);
+        });
+        
+        rendererDom.addEventListener('mousemove', (e) => {
+            if (!this.isMouseDown) return;
+            
+            const deltaX = e.clientX - this.previousMousePosition.x;
+            const deltaY = e.clientY - this.previousMousePosition.y;
+            
+            this.targetRotation.y -= deltaX * 0.005;
+            this.targetRotation.x -= deltaY * 0.005;
+            this.targetRotation.x = Math.max(-Math.PI/2.5, Math.min(Math.PI/2.5, this.targetRotation.x));
+            
+            const targetVector = new THREE.Vector3(0, 0, -1);
+            targetVector.applyEuler(this.targetRotation);
+            this.camera.lookAt(targetVector);
+            
+            this.previousMousePosition = { x: e.clientX, y: e.clientY };
+        });
+        
+        rendererDom.addEventListener('mouseup', () => {
+            this.isMouseDown = false;
+        });
+        
+        rendererDom.addEventListener('wheel', (e) => {
+            const zoomFactor = 1 + e.deltaY * 0.001;
+            this.camera.fov *= zoomFactor;
+            this.camera.fov = Math.max(30, Math.min(120, this.camera.fov));
+            this.camera.updateProjectionMatrix();
+        });
+        
+        // Touch support
+        rendererDom.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                this.isMouseDown = true;
+                this.previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                
+                if (this.state.isPlacingMarker) {
+                    this.placeMarkerAtTouch(e);
+                }
+            }
+        }, { passive: true });
+        
+        rendererDom.addEventListener('touchmove', (e) => {
+            if (!this.isMouseDown || e.touches.length !== 1) return;
+            e.preventDefault();
+            
+            const deltaX = e.touches[0].clientX - this.previousMousePosition.x;
+            const deltaY = e.touches[0].clientY - this.previousMousePosition.y;
+            
+            this.targetRotation.y -= deltaX * 0.005;
+            this.targetRotation.x -= deltaY * 0.005;
+            this.targetRotation.x = Math.max(-Math.PI/2.5, Math.min(Math.PI/2.5, this.targetRotation.x));
+            
+            const targetVector = new THREE.Vector3(0, 0, -1);
+            targetVector.applyEuler(this.targetRotation);
+            this.camera.lookAt(targetVector);
+            
+            this.previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        });
+        
+        rendererDom.addEventListener('touchend', () => { 
+            this.isMouseDown = false; 
+        });
+    }
+
+    handleMarkerClick(event) {
+        const rect = this.renderer.domElement.getBoundingClientRect();
+        const mouse = {
+            x: ((event.clientX - rect.left) / rect.width) * 2 - 1,
+            y: -((event.clientY - rect.top) / rect.height) * 2 + 1
+        };
+        
+        const raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(new THREE.Vector2(mouse.x, mouse.y), this.camera);
+        
+        const markerObjects = Array.from(this.markerObjects.values());
+        const intersects = raycaster.intersectObjects(markerObjects);
+        
+        if (intersects.length > 0) {
+            const sprite = intersects[0].object;
+            const markerId = sprite.userData.markerId;
+            const marker = this.state.getMarker(markerId);
+            if (marker) {
+                this.showMarkerInfo(marker);
+            }
+        }
+    }
+
+    placeMarkerAtClick(event) {
+        if (!this.state.currentImage || !this.state.isPlacingMarker) return;
+        
+        const rect = this.renderer.domElement.getBoundingClientRect();
+        const mouse = {
+            x: ((event.clientX - rect.left) / rect.width) * 2 - 1,
+            y: -((event.clientY - rect.top) / rect.height) * 2 + 1
+        };
+        
+        const raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(new THREE.Vector2(mouse.x, mouse.y), this.camera);
+        
+        const intersects = raycaster.intersectObject(this.sphere);
+        if (intersects.length > 0) {
+            const position = intersects[0].point;
+            this.createPreviewMarker(position, this.state.currentMarkerType);
+            
+            // Create temporary marker
+            this.state.selectedMarkerId = 'temp_' + Date.now();
+            
+            // Show form with default title
+            const markerCount = this.state.markers.filter(m => m.type === this.state.currentMarkerType).length + 1;
+            const defaultTitle = `${this.state.currentMarkerType.charAt(0).toUpperCase() + this.state.currentMarkerType.slice(1)} Marker ${markerCount}`;
+            
+            // Let the UI manager handle showing the form
+            this.app.ui.showMarkerForm(defaultTitle, position);
+            
+            // Show preview indicator
+            this.showPreviewIndicator(event.clientX, event.clientY);
+        }
+    }
+    
+    placeMarkerAtTouch(event) {
+        if (!this.state.currentImage || !this.state.isPlacingMarker) return;
+        
+        const rect = this.renderer.domElement.getBoundingClientRect();
+        const touch = event.touches[0];
+        const mouse = {
+            x: ((touch.clientX - rect.left) / rect.width) * 2 - 1,
+            y: -((touch.clientY - rect.top) / rect.height) * 2 + 1
+        };
+        
+        const raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(new THREE.Vector2(mouse.x, mouse.y), this.camera);
+        
+        const intersects = raycaster.intersectObject(this.sphere);
+        if (intersects.length > 0) {
+            const position = intersects[0].point;
+            this.createPreviewMarker(position, this.state.currentMarkerType);
+            
+            // Create temporary marker
+            this.state.selectedMarkerId = 'temp_' + Date.now();
+            
+            // Show form with default title
+            const markerCount = this.state.markers.filter(m => m.type === this.state.currentMarkerType).length + 1;
+            const defaultTitle = `${this.state.currentMarkerType.charAt(0).toUpperCase() + this.state.currentMarkerType.slice(1)} Marker ${markerCount}`;
+            
+            // Let the UI manager handle showing the form
+            this.app.ui.showMarkerForm(defaultTitle, position);
+            
+            // Show preview indicator
+            this.showPreviewIndicator(touch.clientX, touch.clientY);
+        }
+    }
+    
+    showPreviewIndicator(x, y) {
+        const indicator = document.getElementById('previewIndicator');
+        const rect = this.renderer.domElement.getBoundingClientRect();
+        indicator.style.left = (x - rect.left) + 'px';
+        indicator.style.top = (y - rect.top) + 'px';
+        indicator.style.display = 'block';
+        
+        // Hide after a moment
+        setTimeout(() => {
+            indicator.style.display = 'none';
+        }, 500);
     }
 
     createMarkerIcon(type, color) {
@@ -798,7 +1147,6 @@ class MarkerManager360 {
         canvas.height = size;
         const ctx = canvas.getContext('2d');
         
-        // Draw background circle with gradient
         const gradient = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
         gradient.addColorStop(0, `#${color.toString(16).padStart(6, '0')}80`);
         gradient.addColorStop(1, `#${color.toString(16).padStart(6, '0')}`);
@@ -807,13 +1155,10 @@ class MarkerManager360 {
         ctx.arc(size/2, size/2, size/2 - 4, 0, Math.PI * 2);
         ctx.fillStyle = gradient;
         ctx.fill();
-        
-        // White border
         ctx.strokeStyle = '#ffffff';
         ctx.lineWidth = 4;
         ctx.stroke();
         
-        // Font Awesome icons Unicode
         const iconMap = {
             info: '\uf05a',
             link: '\uf0c1',
@@ -823,7 +1168,6 @@ class MarkerManager360 {
             question: '\uf059'
         };
         
-        // Draw icon
         ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 64px "Font Awesome 5 Free"';
         ctx.textAlign = 'center';
@@ -834,17 +1178,16 @@ class MarkerManager360 {
     }
 
     createMarkerObject(marker) {
-        if (marker.object) {
-            this.scene.remove(marker.object);
-            if (marker.object.material) {
-                if (marker.object.material.map) marker.object.material.map.dispose();
-                marker.object.material.dispose();
-            }
+        if (this.markerObjects.has(marker.id)) {
+            const oldSprite = this.markerObjects.get(marker.id);
+            this.scene.remove(oldSprite);
+            if (oldSprite.material.map) oldSprite.material.map.dispose();
+            oldSprite.material.dispose();
+            this.markerObjects.delete(marker.id);
         }
         
         const canvas = this.createMarkerIcon(marker.type, this.state.markerThemes[marker.type].color);
         const texture = new THREE.CanvasTexture(canvas);
-        
         const spriteMaterial = new THREE.SpriteMaterial({ 
             map: texture,
             transparent: true,
@@ -861,25 +1204,8 @@ class MarkerManager360 {
         sprite.renderOrder = 999;
         
         this.scene.add(sprite);
-        marker.object = sprite;
+        this.markerObjects.set(marker.id, sprite);
         return sprite;
-    }
-
-    renderAllMarkers() {
-        this.state.markers.forEach(marker => {
-            this.createMarkerObject(marker);
-        });
-    }
-
-    removePreviewMarker() {
-        if (this.previewMarker) {
-            this.scene.remove(this.previewMarker);
-            if (this.previewMarker.material) {
-                if (this.previewMarker.material.map) this.previewMarker.material.map.dispose();
-                this.previewMarker.material.dispose();
-            }
-            this.previewMarker = null;
-        }
     }
 
     createPreviewMarker(position, type) {
@@ -905,38 +1231,42 @@ class MarkerManager360 {
         return this.previewMarker;
     }
 
-    getIntersectedMarker(mouse, camera) {
-        this.mouse.x = (mouse.x / window.innerWidth) * 2 - 1;
-        this.mouse.y = -(mouse.y / window.innerHeight) * 2 + 1;
-        
-        this.raycaster.setFromCamera(this.mouse, camera);
-        
-        const markerObjects = this.scene.children.filter(obj => 
-            obj.type === 'Sprite' && obj !== this.previewMarker
-        );
-        
-        const intersects = this.raycaster.intersectObjects(markerObjects);
-        if (intersects.length > 0) {
-            const sprite = intersects[0].object;
-            return this.state.getMarker(sprite.userData.markerId);
+    removePreviewMarker() {
+        if (this.previewMarker) {
+            this.scene.remove(this.previewMarker);
+            if (this.previewMarker.material.map) this.previewMarker.material.map.dispose();
+            this.previewMarker.material.dispose();
+            this.previewMarker = null;
         }
-        return null;
+    }
+
+    renderAllMarkers() {
+        this.markerObjects.forEach(sprite => {
+            this.scene.remove(sprite);
+            if (sprite.material.map) sprite.material.map.dispose();
+            sprite.material.dispose();
+        });
+        this.markerObjects.clear();
+        
+        this.state.markers.forEach(marker => {
+            this.createMarkerObject(marker);
+        });
     }
 
     showMarkerInfo(marker) {
-        // Remove existing info panel
         if (this.state.activeInfoPanel) {
             this.state.activeInfoPanel.remove();
+            this.state.activeInfoPanel = null;
         }
         
         const infoPanel = document.createElement('div');
         infoPanel.className = 'marker-info-panel';
         
         let content = `<button class="close-btn">&times;</button>
-                      <h4><i class="fas ${this.state.markerThemes[marker.type].icon}"></i> ${marker.title}</h4>`;
+                      <h4><i class="fas ${this.state.markerThemes[marker.type].icon}"></i> ${this.escapeHtml(marker.title)}</h4>`;
         
         if (marker.description) {
-            content += `<p>${marker.description}</p>`;
+            content += `<p>${this.escapeHtml(marker.description)}</p>`;
         }
         
         if (marker.url) {
@@ -944,39 +1274,35 @@ class MarkerManager360 {
             if (marker.type === 'video') linkText = 'Watch Video';
             else if (marker.type === 'audio') linkText = 'Play Audio';
             
-            content += `<a href="${marker.url}" target="_blank">${linkText} <i class="fas fa-external-link-alt"></i></a>`;
+            content += `<a href="${this.escapeHtml(marker.url)}" target="_blank">${linkText} <i class="fas fa-external-link-alt"></i></a>`;
         }
         
         infoPanel.innerHTML = content;
         
-        // Add close button functionality
         const closeBtn = infoPanel.querySelector('.close-btn');
         closeBtn.addEventListener('click', () => {
             infoPanel.remove();
             this.state.activeInfoPanel = null;
         });
         
-        // Position panel
         this.positionInfoPanelAtMarker(infoPanel, marker);
-        
         document.querySelector('.viewer-container').appendChild(infoPanel);
         this.state.activeInfoPanel = infoPanel;
-        
-        // Auto-close after 10 seconds
-        setTimeout(() => {
-            if (this.state.activeInfoPanel === infoPanel) {
-                infoPanel.remove();
-                this.state.activeInfoPanel = null;
-            }
-        }, 10000);
+    }
+
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 
     positionInfoPanelAtMarker(panel, marker) {
-        if (!marker.object) return;
+        if (!this.markerObjects.has(marker.id)) return;
         
-        const markerPosition = marker.object.position.clone();
+        const sprite = this.markerObjects.get(marker.id);
+        const markerPosition = sprite.position.clone();
         const vector = markerPosition.clone();
-        vector.project(window.camera);
+        vector.project(this.camera);
         
         const viewerRect = document.getElementById('viewer').getBoundingClientRect();
         const x = (vector.x * 0.5 + 0.5) * viewerRect.width;
@@ -988,13 +1314,8 @@ class MarkerManager360 {
         const panelWidth = panel.offsetWidth || 250;
         const panelHeight = panel.offsetHeight || 200;
         
-        if (left + panelWidth > viewerRect.width) {
-            left = x - panelWidth - 20;
-        }
-        
-        if (top + panelHeight > viewerRect.height) {
-            top = y - panelHeight - 20;
-        }
+        if (left + panelWidth > viewerRect.width) left = x - panelWidth - 20;
+        if (top + panelHeight > viewerRect.height) top = y - panelHeight - 20;
         
         left = Math.max(10, Math.min(viewerRect.width - panelWidth - 10, left));
         top = Math.max(10, Math.min(viewerRect.height - panelHeight - 10, top));
@@ -1003,410 +1324,11 @@ class MarkerManager360 {
         panel.style.top = top + 'px';
     }
 
-    updateMarkerList() {
-        const markerList = document.getElementById('markerList');
-        const listCount = document.getElementById('markerListCount');
-        const markerCount = document.getElementById('markerCount');
-        const searchTerm = document.getElementById('markerSearch').value.toLowerCase();
-        
-        if (this.state.markers.length === 0) {
-            markerList.innerHTML = '<div class="empty-state">No markers added</div>';
-            listCount.textContent = '0';
-            markerCount.textContent = '0';
-            return;
-        }
-        
-        const filteredMarkers = this.state.markers.filter(marker => 
-            marker.title.toLowerCase().includes(searchTerm) ||
-            (marker.description && marker.description.toLowerCase().includes(searchTerm)) ||
-            marker.type.includes(searchTerm)
-        );
-        
-        let html = '';
-        filteredMarkers.forEach(marker => {
-            html += `
-                <div class="marker-item" data-id="${marker.id}">
-                    <div class="marker-item-header">
-                        <div class="marker-item-title">
-                            <i class="fas ${this.state.markerThemes[marker.type].icon}"></i>
-                            ${marker.title}
-                        </div>
-                        <span class="marker-item-type">${marker.type}</span>
-                    </div>
-                    <div class="marker-item-description">${marker.description || 'No description'}</div>
-                    <div class="marker-item-actions">
-                        <button class="marker-action-btn edit" data-id="${marker.id}">
-                            <i class="fas fa-edit"></i> Edit
-                        </button>
-                        <button class="marker-action-btn delete" data-id="${marker.id}">
-                            <i class="fas fa-trash"></i> Delete
-                        </button>
-                    </div>
-                </div>
-            `;
-        });
-        
-        markerList.innerHTML = html;
-        listCount.textContent = this.state.markers.length;
-        markerCount.textContent = this.state.markers.length;
-        
-        // Add event listeners
-        markerList.querySelectorAll('.marker-item').forEach(item => {
-            item.addEventListener('click', (e) => {
-                if (e.target.closest('.marker-action-btn')) return;
-                
-                const markerId = item.dataset.id;
-                const marker = this.state.getMarker(markerId);
-                if (marker) {
-                    this.showMarkerInfo(marker);
-                }
-            });
-        });
-        
-        markerList.querySelectorAll('.edit').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const markerId = btn.dataset.id;
-                const marker = this.state.getMarker(markerId);
-                if (marker) {
-                    this.editMarker(marker);
-                }
-            });
-        });
-        
-        markerList.querySelectorAll('.delete').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const markerId = btn.dataset.id;
-                if (confirm('Delete this marker?')) {
-                    const marker = this.state.getMarker(markerId);
-                    if (marker && marker.object) {
-                        this.scene.remove(marker.object);
-                    }
-                    this.state.deleteMarker(markerId);
-                    this.updateMarkerList();
-                    if (this.state.activeInfoPanel) {
-                        this.state.activeInfoPanel.remove();
-                        this.state.activeInfoPanel = null;
-                    }
-                }
-            });
-        });
-    }
-
-    editMarker(marker) {
-        this.state.selectedMarkerId = marker.id;
-        this.state.currentMarkerType = marker.type;
-        
-        document.getElementById('markerTitle').value = marker.title;
-        document.getElementById('markerDescription').value = marker.description || '';
-        document.getElementById('markerLink').value = marker.url || '';
-        document.getElementById('markerVideo').value = marker.url || '';
-        document.getElementById('markerAudio').value = marker.url || '';
-        document.getElementById('deleteMarkerBtn').style.display = 'inline-block';
-        
-        // Update type selector
-        document.querySelectorAll('.marker-type').forEach(t => t.classList.remove('selected'));
-        document.querySelector(`.marker-type[data-type="${marker.type}"]`).classList.add('selected');
-        
-        // Update URL field visibility
-        this.updateFieldsVisibility();
-    }
-
-    updateFieldsVisibility() {
-        document.querySelectorAll('.url-field').forEach(field => field.classList.remove('visible'));
-        
-        switch(this.state.currentMarkerType) {
-            case 'link':
-                document.getElementById('markerLink').classList.add('visible');
-                break;
-            case 'video':
-                document.getElementById('markerVideo').classList.add('visible');
-                break;
-            case 'audio':
-                document.getElementById('markerAudio').classList.add('visible');
-                break;
-        }
-    }
-
-    resetForm() {
-        document.getElementById('markerTitle').value = '';
-        document.getElementById('markerDescription').value = '';
-        document.getElementById('markerLink').value = '';
-        document.getElementById('markerVideo').value = '';
-        document.getElementById('markerAudio').value = '';
-        document.getElementById('deleteMarkerBtn').style.display = 'none';
-        this.state.selectedMarkerId = null;
-        
-        document.querySelectorAll('.marker-type').forEach(el => el.classList.remove('selected'));
-        document.querySelector('.marker-type[data-type="info"]').classList.add('selected');
-        this.state.currentMarkerType = 'info';
-        this.updateFieldsVisibility();
-    }
-}
-
-class ImageManager360 {
-    constructor(state, markerManager) {
-        this.state = state;
-        this.markerManager = markerManager;
-        this.scene = null;
-        this.camera = null;
-        this.renderer = null;
-        this.sphere = null;
-        this.isMouseDown = false;
-        this.previousMousePosition = { x: 0, y: 0 };
-        this.targetRotation = new THREE.Euler(0, 0, 0, 'YXZ');
-    }
-
-    initThreeJS() {
-        this.scene = new THREE.Scene();
-        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        this.camera.position.set(0, 0, 0.1);
-        
-        this.renderer = new THREE.WebGLRenderer({ antialias: true });
-        this.renderer.setSize(document.getElementById('viewer').offsetWidth, document.getElementById('viewer').offsetHeight);
-        this.renderer.setPixelRatio(window.devicePixelRatio);
-        document.getElementById('viewer').appendChild(this.renderer.domElement);
-        
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-        this.scene.add(ambientLight);
-        
-        window.camera = this.camera; // Make globally accessible
-        this.setupControls();
-        window.addEventListener('resize', () => this.onWindowResize());
-        this.animate();
-        
-        // Load default placeholder - no instructions in editor
-        this.createSphere('https://images.unsplash.com/photo-1519681393784-d120267933ba?w=2048&h=1024&fit=crop');
-    }
-
-    createSphere(imageUrl) {
-        if (this.sphere) {
-            this.scene.remove(this.sphere);
-            this.sphere.geometry.dispose();
-            this.sphere.material.dispose();
-        }
-        
-        const geometry = new THREE.SphereGeometry(500, 60, 40);
-        geometry.scale(-1, 1, 1);
-        
-        const texture = new THREE.TextureLoader().load(imageUrl);
-        const material = new THREE.MeshBasicMaterial({ map: texture });
-        this.sphere = new THREE.Mesh(geometry, material);
-        this.scene.add(this.sphere);
-    }
-
-    setupControls() {
-        const viewer = document.getElementById('viewer');
-        
-        // Mouse controls
-        viewer.addEventListener('mousedown', (e) => {
-            if (this.state.placementMode && e.button === 0) {
-                this.placeMarkerAtClick(e);
-                return;
-            }
-            
-            if (this.markerManager.draggingMarker) return;
-            
-            this.isMouseDown = true;
-            this.previousMousePosition = { x: e.clientX, y: e.clientY };
-            
-            // Check if clicking on a marker to drag
-            const rect = viewer.getBoundingClientRect();
-            const mouse = {
-                x: ((e.clientX - rect.left) / rect.width) * 2 - 1,
-                y: -((e.clientY - rect.top) / rect.height) * 2 + 1
-            };
-            
-            const intersectedMarker = this.markerManager.getIntersectedMarker({x: e.clientX, y: e.clientY}, this.camera);
-            if (intersectedMarker) {
-                this.startDraggingMarker(intersectedMarker, e);
-                e.preventDefault();
-                return;
-            }
-        });
-        
-        viewer.addEventListener('mousemove', (e) => {
-            if (this.markerManager.draggingMarker) {
-                this.dragMarker(e);
-                e.preventDefault();
-                return;
-            }
-            
-            if (!this.isMouseDown) return;
-            
-            const deltaX = e.clientX - this.previousMousePosition.x;
-            const deltaY = e.clientY - this.previousMousePosition.y;
-            
-            this.targetRotation.y -= deltaX * 0.005;
-            this.targetRotation.x -= deltaY * 0.005;
-            this.targetRotation.x = Math.max(-Math.PI/2.5, Math.min(Math.PI/2.5, this.targetRotation.x));
-            
-            const targetVector = new THREE.Vector3(0, 0, -1);
-            targetVector.applyEuler(this.targetRotation);
-            this.camera.lookAt(targetVector);
-            
-            this.previousMousePosition = { x: e.clientX, y: e.clientY };
-        });
-        
-        viewer.addEventListener('mouseup', () => {
-            if (this.markerManager.draggingMarker) {
-                this.stopDraggingMarker();
-                return;
-            }
-            this.isMouseDown = false;
-        });
-        
-        // Wheel for zoom
-        viewer.addEventListener('wheel', (e) => {
-            const zoomFactor = 1 + e.deltaY * 0.001;
-            this.camera.fov *= zoomFactor;
-            this.camera.fov = Math.max(30, Math.min(120, this.camera.fov));
-            this.camera.updateProjectionMatrix();
-        });
-        
-        // Touch support
-        viewer.addEventListener('touchstart', (e) => {
-            if (e.touches.length === 1) {
-                this.isMouseDown = true;
-                this.previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-            }
-        });
-        
-        viewer.addEventListener('touchmove', (e) => {
-            if (!this.isMouseDown || e.touches.length !== 1) return;
-            e.preventDefault();
-            
-            const deltaX = e.touches[0].clientX - this.previousMousePosition.x;
-            const deltaY = e.touches[0].clientY - this.previousMousePosition.y;
-            
-            this.targetRotation.y -= deltaX * 0.005;
-            this.targetRotation.x -= deltaY * 0.005;
-            this.targetRotation.x = Math.max(-Math.PI/2.5, Math.min(Math.PI/2.5, this.targetRotation.x));
-            
-            const targetVector = new THREE.Vector3(0, 0, -1);
-            targetVector.applyEuler(this.targetRotation);
-            this.camera.lookAt(targetVector);
-            
-            this.previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-        });
-        
-        viewer.addEventListener('touchend', () => {
-            this.isMouseDown = false;
-        });
-    }
-
-    startDraggingMarker(marker, event) {
-        this.markerManager.isDragging = true;
-        this.markerManager.draggingMarker = marker;
-        this.state.dragStartPoint.set(event.clientX, event.clientY);
-        this.state.markerStartPosition.copy(marker.object.position);
-        
-        // Add visual feedback
-        if (marker.object) {
-            marker.object.material.opacity = 0.7;
-            marker.object.scale.set(36, 36, 1.2);
-        }
-    }
-
-    dragMarker(event) {
-        if (!this.markerManager.draggingMarker || !this.markerManager.draggingMarker.object) return;
-        
-        const deltaX = event.clientX - this.state.dragStartPoint.x;
-        const deltaY = event.clientY - this.state.dragStartPoint.y;
-        
-        // Calculate movement on sphere surface
-        const sensitivity = 0.01;
-        const movement = new THREE.Vector3(deltaX * sensitivity, -deltaY * sensitivity, 0);
-        
-        // Update marker position
-        const newPosition = this.state.markerStartPosition.clone().add(movement);
-        newPosition.normalize().multiplyScalar(500); // Keep on sphere surface
-        
-        this.markerManager.draggingMarker.object.position.copy(newPosition);
-        this.markerManager.draggingMarker.position = newPosition.toArray();
-    }
-
-    stopDraggingMarker() {
-        if (!this.markerManager.draggingMarker) return;
-        
-        // Update marker data
-        const marker = this.markerManager.draggingMarker;
-        this.state.updateMarker(marker.id, {
-            position: marker.object.position.toArray()
-        });
-        
-        // Restore visual state
-        if (marker.object) {
-            marker.object.material.opacity = 0.9;
-            marker.object.scale.set(30, 30, 1);
-        }
-        
-        this.markerManager.isDragging = false;
-        this.markerManager.draggingMarker = null;
-    }
-
-    placeMarkerAtClick(event) {
-        if (!this.state.currentImage || !this.state.placementMode) return;
-        
-        const rect = document.getElementById('viewer').getBoundingClientRect();
-        const mouse = {
-            x: ((event.clientX - rect.left) / rect.width) * 2 - 1,
-            y: -((event.clientY - rect.top) / rect.height) * 2 + 1
-        };
-        
-        const raycaster = new THREE.Raycaster();
-        raycaster.setFromCamera(new THREE.Vector2(mouse.x, mouse.y), this.camera);
-        
-        const intersects = raycaster.intersectObject(this.sphere);
-        if (intersects.length > 0) {
-            const position = intersects[0].point;
-            
-            // Create preview
-            this.markerManager.createPreviewMarker(position, this.state.currentMarkerType);
-            
-            // Create new marker data
-            const marker = {
-                id: Date.now() + Math.random(),
-                type: this.state.currentMarkerType,
-                title: `New ${this.state.currentMarkerType} Marker`,
-                description: '',
-                url: '',
-                position: position.toArray()
-            };
-            
-            this.state.selectedMarkerId = marker.id;
-            
-            // Populate form
-            document.getElementById('markerTitle').value = marker.title;
-            document.getElementById('markerDescription').value = '';
-            document.getElementById('markerLink').value = '';
-            document.getElementById('markerVideo').value = '';
-            document.getElementById('markerAudio').value = '';
-            document.getElementById('deleteMarkerBtn').style.display = 'none';
-            
-            // Exit placement mode
-            this.state.placementMode = false;
-            document.getElementById('placeMarkerBtn').innerHTML = '<i class="fas fa-map-marker-alt"></i>';
-            document.getElementById('placeMarkerBtn').title = 'Place Marker Mode';
-        }
-    }
-
     onWindowResize() {
-        this.camera.aspect = document.getElementById('viewer').offsetWidth / document.getElementById('viewer').offsetHeight;
+        const viewer = document.getElementById('viewer');
+        this.camera.aspect = viewer.clientWidth / viewer.clientHeight;
         this.camera.updateProjectionMatrix();
-        this.renderer.setSize(document.getElementById('viewer').offsetWidth, document.getElementById('viewer').offsetHeight);
-        
-        // Reposition active info panel
-        if (this.state.activeInfoPanel) {
-            const markerId = this.state.activeInfoPanel.dataset.markerId;
-            if (markerId) {
-                const marker = this.state.getMarker(markerId);
-                if (marker) {
-                    this.markerManager.positionInfoPanelAtMarker(this.state.activeInfoPanel, marker);
-                }
-            }
-        }
+        this.renderer.setSize(viewer.clientWidth, viewer.clientHeight);
     }
 
     animate() {
@@ -1421,44 +1343,419 @@ class ImageManager360 {
     }
 }
 
-class ExportManager360 {
-    constructor(state) {
-        this.state = state;
+// ==================== UI MANAGER ====================
+class UIManager {
+    constructor(app) {
+        this.app = app;
+        this.app.threeJS.app = app; // Set reference back
+        this.setupEventListeners();
     }
 
-    generateExportCode(projectName, options = {}) {
-        const { responsive = true, smartPositioning = true } = options;
+    setupEventListeners() {
+        // File upload
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
         
-        const markersData = JSON.stringify(this.state.markers.map(marker => ({
+        uploadArea.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files[0]) this.app.loadImage(e.target.files[0]);
+        });
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            if (e.dataTransfer.files[0]) this.app.loadImage(e.dataTransfer.files[0]);
+        });
+
+        // Marker type selection - NOW AUTOMATICALLY ENTERS PLACEMENT MODE
+        document.querySelectorAll('.marker-type').forEach(type => {
+            type.addEventListener('click', () => {
+                document.querySelectorAll('.marker-type').forEach(t => t.classList.remove('selected'));
+                type.classList.add('selected');
+                this.app.state.currentMarkerType = type.dataset.type;
+                this.updateFieldsVisibility();
+                
+                // Automatically enter placement mode when marker type is selected
+                if (this.app.state.currentImage) {
+                    this.enterPlacementMode();
+                } else {
+                    alert('Please upload an image first.');
+                }
+            });
+        });
+
+        // Form buttons
+        document.getElementById('saveMarkerBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            this.app.saveMarker();
+        });
+        document.getElementById('cancelMarkerBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            this.app.cancelMarker();
+        });
+        document.getElementById('deleteMarkerBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            this.app.deleteMarker();
+        });
+        document.getElementById('clearMarkersBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            this.app.clearAllMarkers();
+        });
+
+        // Viewer controls
+        document.getElementById('resetViewBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            this.app.resetView();
+        });
+        document.getElementById('autoRotateBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            this.app.toggleAutoRotate();
+        });
+
+        // Project buttons
+        document.getElementById('exportBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            this.app.exportProject();
+        });
+        document.getElementById('saveProjectBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            this.app.openProjectModal();
+        });
+        document.getElementById('loadProjectBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            this.app.openProjectModal();
+        });
+
+        // Export modal
+        document.getElementById('copyCodeBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            this.app.copyExportCode();
+        });
+        document.getElementById('downloadBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            this.app.downloadExportFile();
+        });
+        document.getElementById('closeExportBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('exportModal').classList.add('hidden');
+        });
+
+        // Project modal
+        document.getElementById('saveProjectConfirmBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            this.app.saveProjectToFile();
+        });
+        document.getElementById('closeProjectBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('projectModal').classList.add('hidden');
+        });
+
+        const projectUploadArea = document.getElementById('projectUploadArea');
+        const projectFileInput = document.getElementById('projectFileInput');
+        projectUploadArea.addEventListener('click', () => projectFileInput.click());
+        projectFileInput.addEventListener('change', (e) => {
+            if (e.target.files[0]) this.app.loadProjectFromFile(e.target.files[0]);
+        });
+        document.getElementById('clearProjectsBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            this.app.clearProjectData();
+        });
+
+        // Search
+        document.getElementById('markerSearch').addEventListener('input', () => {
+            this.app.updateMarkerList();
+        });
+
+        // History
+        document.getElementById('undoBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            this.app.undo();
+        });
+        document.getElementById('redoBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            this.app.redo();
+        });
+
+        // Close instructions
+        document.getElementById('closeInstructions').addEventListener('click', () => {
+            document.getElementById('instructions').classList.add('hidden');
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => this.handleKeyboardShortcuts(e));
+    }
+
+    updateFieldsVisibility() {
+        document.querySelectorAll('.url-field').forEach(field => {
+            field.classList.remove('visible');
+        });
+        
+        switch(this.app.state.currentMarkerType) {
+            case 'link':
+                document.getElementById('markerLink').classList.add('visible');
+                break;
+            case 'video':
+                document.getElementById('markerVideo').classList.add('visible');
+                break;
+            case 'audio':
+                document.getElementById('markerAudio').classList.add('visible');
+                break;
+        }
+    }
+
+    enterPlacementMode() {
+        this.app.state.isPlacingMarker = true;
+        document.getElementById('viewer').classList.add('marker-cursor');
+        document.getElementById('placementStatus').style.display = 'block';
+        document.getElementById('placementStatus').innerHTML = `
+            <i class="fas fa-mouse-pointer"></i> <strong>Placing ${this.app.state.currentMarkerType} marker</strong>
+            <p style="font-size: 0.8rem; margin-top: 4px;">Click anywhere on the image to place marker</p>
+        `;
+    }
+
+    exitPlacementMode() {
+        this.app.state.isPlacingMarker = false;
+        document.getElementById('viewer').classList.remove('marker-cursor');
+        document.getElementById('placementStatus').style.display = 'none';
+    }
+
+    showMarkerForm(defaultTitle, position) {
+        document.getElementById('markerTitle').value = defaultTitle;
+        document.getElementById('markerDescription').value = '';
+        document.getElementById('markerLink').value = '';
+        document.getElementById('markerVideo').value = '';
+        document.getElementById('markerAudio').value = '';
+        document.getElementById('deleteMarkerBtn').style.display = 'none';
+        
+        this.updateFieldsVisibility();
+        document.getElementById('markerForm').classList.remove('hidden');
+        document.getElementById('markerTitle').focus();
+        
+        // Exit placement mode
+        this.exitPlacementMode();
+    }
+
+    handleKeyboardShortcuts(e) {
+        if (e.ctrlKey || e.metaKey) {
+            switch(e.key.toLowerCase()) {
+                case 's':
+                    e.preventDefault();
+                    this.app.openProjectModal();
+                    break;
+                case 'o':
+                    e.preventDefault();
+                    this.app.openProjectModal();
+                    break;
+                case 'e':
+                    e.preventDefault();
+                    this.app.exportProject();
+                    break;
+                case 'z':
+                    e.preventDefault();
+                    this.app.undo();
+                    break;
+                case 'y':
+                    e.preventDefault();
+                    this.app.redo();
+                    break;
+            }
+        }
+        
+        if (e.key === 'Delete' && this.app.state.selectedMarkerId) {
+            e.preventDefault();
+            this.app.deleteMarker();
+        }
+        
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            this.app.cancelMarker();
+            if (this.app.state.activeInfoPanel) {
+                this.app.state.activeInfoPanel.remove();
+                this.app.state.activeInfoPanel = null;
+            }
+            this.exitPlacementMode();
+        }
+    }
+
+    updateMarkerList() {
+        const markerList = document.getElementById('markerList');
+        const listCount = document.getElementById('markerListCount');
+        const markerCount = document.getElementById('markerCount');
+        const searchTerm = document.getElementById('markerSearch').value.toLowerCase();
+        
+        if (this.app.state.markers.length === 0) {
+            markerList.innerHTML = '<div class="empty-state">No markers added</div>';
+            listCount.textContent = '0';
+            markerCount.textContent = '0';
+            return;
+        }
+        
+        const filteredMarkers = this.app.state.markers.filter(marker => 
+            marker.title.toLowerCase().includes(searchTerm) ||
+            (marker.description && marker.description.toLowerCase().includes(searchTerm)) ||
+            marker.type.includes(searchTerm)
+        );
+        
+        let html = '';
+        filteredMarkers.forEach(marker => {
+            html += `
+                <div class="marker-item" data-id="${marker.id}">
+                    <div class="marker-item-header">
+                        <div class="marker-item-title">
+                            <i class="fas ${this.app.state.markerThemes[marker.type].icon}"></i>
+                            ${this.escapeHtml(marker.title)}
+                        </div>
+                        <span class="marker-item-type">${marker.type}</span>
+                    </div>
+                    <div class="marker-item-description">${this.escapeHtml(marker.description || 'No description')}</div>
+                    <div class="marker-item-actions">
+                        <button class="marker-action-btn edit" data-id="${marker.id}">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="marker-action-btn delete" data-id="${marker.id}">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+        
+        markerList.innerHTML = html;
+        listCount.textContent = this.app.state.markers.length;
+        markerCount.textContent = this.app.state.markers.length;
+        
+        // Add event listeners
+        markerList.querySelectorAll('.edit').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.app.editMarker(btn.dataset.id);
+            });
+        });
+        
+        markerList.querySelectorAll('.delete').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const markerId = btn.dataset.id;
+                if (confirm('Delete this marker?')) {
+                    this.app.state.deleteMarker(markerId);
+                    this.app.threeJS.renderAllMarkers();
+                    this.updateMarkerList();
+                    if (this.app.state.activeInfoPanel) {
+                        this.app.state.activeInfoPanel.remove();
+                        this.app.state.activeInfoPanel = null;
+                    }
+                }
+            });
+        });
+        
+        markerList.querySelectorAll('.marker-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                if (e.target.closest('.marker-action-btn')) return;
+                const marker = this.app.state.getMarker(item.dataset.id);
+                if (marker) this.app.threeJS.showMarkerInfo(marker);
+            });
+        });
+    }
+
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    resetForm() {
+        document.getElementById('markerTitle').value = '';
+        document.getElementById('markerDescription').value = '';
+        document.getElementById('markerLink').value = '';
+        document.getElementById('markerVideo').value = '';
+        document.getElementById('markerAudio').value = '';
+        document.getElementById('deleteMarkerBtn').style.display = 'none';
+        document.getElementById('markerForm').classList.add('hidden');
+        
+        this.app.state.selectedMarkerId = null;
+        
+        // Reset to info type
+        document.querySelectorAll('.marker-type').forEach(el => el.classList.remove('selected'));
+        document.querySelector('.marker-type[data-type="info"]').classList.add('selected');
+        this.app.state.currentMarkerType = 'info';
+        this.updateFieldsVisibility();
+        
+        // Remove preview marker
+        this.app.threeJS.removePreviewMarker();
+    }
+
+    updateImageInfo(imageName) {
+        document.getElementById('currentImageName').textContent = imageName;
+        document.getElementById('imageInfo').classList.remove('hidden');
+    }
+}
+
+// ==================== EXPORT MANAGER ====================
+class ExportManager {
+    static generateExportCode(projectName, imageData, markers, markerThemes) {
+        const escapeHtml = (text) => {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        };
+
+        const safeName = escapeHtml(projectName || '360° Viewer');
+        
+        // Clean markers data
+        const cleanMarkers = markers.map(marker => ({
             id: marker.id,
             type: marker.type,
             title: marker.title,
             description: marker.description,
             url: marker.url,
             position: marker.position,
-            color: this.state.markerThemes[marker.type].color
-        })));
-        
-        // Simple HTML escape function
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-        
-        const safeImageName = escapeHtml(projectName || '360° Viewer');
-        
+            color: markerThemes[marker.type].color
+        }));
+
         return `<!DOCTYPE html>
 <html>
 <head>
-    <title>${safeImageName}</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>${safeName}</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
-        body { margin: 0; overflow: hidden; background: #000; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { margin: 0; overflow: hidden; background: #000; font-family: 'Segoe UI', sans-serif; }
         canvas { display: block; }
+        .instructions {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background: rgba(0, 0, 0, 0.95);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            border: 2px solid #00b4d8;
+            z-index: 20;
+        }
+        .instructions h3 {
+            color: #00b4d8;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        .instructions button {
+            margin-top: 15px; 
+            padding: 10px 20px; 
+            background: #00b4d8; 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer;
+            font-weight: bold;
+        }
         .marker-info-panel { 
             position: absolute; 
             background: rgba(0,0,0,0.95); 
@@ -1472,13 +1769,10 @@ class ExportManager360 {
             z-index: 1000;
             pointer-events: auto;
             backdrop-filter: blur(5px);
-            transition: opacity 0.3s ease;
-            font-size: 14px;
         }
         .marker-info-panel h4 {
             color: #00b4d8;
             margin: 0 0 10px 0;
-            font-size: 16px;
         }
         .marker-info-panel a {
             color: #4cc9f0;
@@ -1488,7 +1782,6 @@ class ExportManager360 {
             padding: 6px 12px;
             background: rgba(76, 201, 240, 0.1);
             border-radius: 4px;
-            transition: background 0.3s;
         }
         .marker-info-panel .close-btn {
             position: absolute;
@@ -1507,85 +1800,40 @@ class ExportManager360 {
             border-radius: 50%;
         }
         .hidden { display: none; }
-        
-        /* Instructions - ONLY IN EXPORTED FILE */
-        .instructions {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            background: rgba(0, 0, 0, 0.95);
-            color: white;
-            padding: 30px;
-            border-radius: 10px;
-            max-width: 500px;
-            border: 2px solid #00b4d8;
-            z-index: 20;
-        }
-        
-        .instructions h3 {
-            color: #00b4d8;
-            margin-top: 0;
-            margin-bottom: 15px;
-            font-size: 1.5rem;
-        }
-        
-        .instructions p {
-            margin: 10px 0;
-            line-height: 1.5;
-        }
-        
-        .instructions button {
-            margin-top: 15px; 
-            padding: 10px 20px; 
-            background: #00b4d8; 
-            color: white; 
-            border: none; 
-            border-radius: 5px; 
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1rem;
-        }
-        
-        .instructions button:hover {
-            background: #0077b6;
-        }
-        
-        ${responsive ? '@media (max-width: 768px) { .marker-info-panel, .instructions { max-width: 90vw; } }' : ''}
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>
 </head>
 <body>
     <div id="container"></div>
     
-    <!-- INSTRUCTIONS - ONLY IN EXPORTED FILES -->
     <div class="instructions" id="instructions">
-        <i class="fas fa-globe-americas" style="font-size: 48px; color: #00b4d8; margin-bottom: 20px;"></i>
         <h3>360° Image Viewer</h3>
-        <p><strong>${safeImageName}</strong></p>
+        <p><strong>${safeName}</strong></p>
         <p>Drag to look around • Scroll to zoom</p>
         <p>Click on markers for information</p>
         <button id="startBtn">Start Exploring</button>
     </div>
 
     <script>
+        // Scene setup
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.getElementById('container').appendChild(renderer.domElement);
         
+        // Create sphere
         const geometry = new THREE.SphereGeometry(500, 60, 40);
         geometry.scale(-1, 1, 1);
         
         const textureLoader = new THREE.TextureLoader();
-        const texture = textureLoader.load('${this.state.currentImage ? this.state.currentImage.data : ''}');
-        
+        const texture = textureLoader.load('${imageData}');
         const material = new THREE.MeshBasicMaterial({ map: texture });
         const sphere = new THREE.Mesh(geometry, material);
         scene.add(sphere);
         
-        const markers = ${markersData};
+        // Add markers
+        const markers = ${JSON.stringify(cleanMarkers)};
         let activeInfoPanel = null;
         
         markers.forEach(marker => {
@@ -1595,7 +1843,6 @@ class ExportManager360 {
             canvas.height = size;
             const ctx = canvas.getContext('2d');
             
-            // Draw marker icon
             ctx.beginPath();
             ctx.arc(size/2, size/2, size/2 - 4, 0, Math.PI * 2);
             ctx.fillStyle = '#' + marker.color.toString(16).padStart(6, '0');
@@ -1604,7 +1851,6 @@ class ExportManager360 {
             ctx.lineWidth = 3;
             ctx.stroke();
             
-            // Draw icon based on type
             ctx.fillStyle = 'white';
             ctx.font = 'bold 32px Arial';
             ctx.textAlign = 'center';
@@ -1621,7 +1867,6 @@ class ExportManager360 {
             
             ctx.fillText(iconChar, size/2, size/2);
             
-            // Create sprite
             const markerTexture = new THREE.CanvasTexture(canvas);
             const spriteMaterial = new THREE.SpriteMaterial({ 
                 map: markerTexture,
@@ -1641,11 +1886,11 @@ class ExportManager360 {
         
         camera.position.set(0, 0, 0.1);
         
+        // Controls
         let isMouseDown = false;
         let previousMousePosition = { x: 0, y: 0 };
         let targetRotation = new THREE.Euler(0, 0, 0, 'YXZ');
         
-        // Mouse controls
         document.addEventListener('mousedown', (e) => {
             isMouseDown = true;
             previousMousePosition = { x: e.clientX, y: e.clientY };
@@ -1677,16 +1922,16 @@ class ExportManager360 {
             camera.updateProjectionMatrix();
         });
         
-        // Hide instructions when clicking start
+        // Hide instructions
         document.getElementById('startBtn').addEventListener('click', () => {
             document.getElementById('instructions').classList.add('hidden');
         });
         
-        // Auto-hide instructions after 5 seconds
         setTimeout(() => {
             document.getElementById('instructions').classList.add('hidden');
         }, 5000);
         
+        // Marker interaction
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
         
@@ -1731,7 +1976,6 @@ class ExportManager360 {
                 document.body.appendChild(infoPanel);
                 activeInfoPanel = infoPanel;
                 
-                // Position panel
                 const markerPosition = new THREE.Vector3(marker.position[0], marker.position[1], marker.position[2]);
                 const vector = markerPosition.clone();
                 vector.project(camera);
@@ -1742,21 +1986,15 @@ class ExportManager360 {
                 let left = x + 20;
                 let top = y + 20;
                 
-                ${smartPositioning ? `
                 if (left + infoPanel.offsetWidth > window.innerWidth) left = x - infoPanel.offsetWidth - 20;
                 if (top + infoPanel.offsetHeight > window.innerHeight) top = y - infoPanel.offsetHeight - 20;
                 left = Math.max(10, Math.min(window.innerWidth - infoPanel.offsetWidth - 10, left));
                 top = Math.max(10, Math.min(window.innerHeight - infoPanel.offsetHeight - 10, top));
-                ` : ''}
                 
                 infoPanel.style.left = left + 'px';
                 infoPanel.style.top = top + 'px';
                 
                 infoPanel.querySelector('.close-btn').addEventListener('click', removeInfoPanel);
-                
-                setTimeout(() => {
-                    if (activeInfoPanel === infoPanel) removeInfoPanel();
-                }, 10000);
             } else {
                 removeInfoPanel();
             }
@@ -1781,159 +2019,16 @@ class ExportManager360 {
     }
 }
 
-class Application360 {
+// ==================== MAIN APPLICATION ====================
+class Application {
     constructor() {
-        this.state = new AppState360();
-        this.imageManager = new ImageManager360(this.state, null);
-        this.markerManager = new MarkerManager360(this.state, this.imageManager.scene);
-        this.imageManager.markerManager = this.markerManager;
-        this.exportManager = new ExportManager360(this.state);
-        
-        this.initialize();
-    }
-
-    initialize() {
-        this.setupEventListeners();
-        this.setupKeyboardShortcuts();
-        this.imageManager.initThreeJS();
+        this.state = new AppState();
+        this.threeJS = new ThreeJSManager(this.state);
+        this.ui = new UIManager(this);
         this.state.saveToHistory();
     }
 
-    setupEventListeners() {
-        // File upload
-        document.getElementById('uploadArea').addEventListener('click', () => {
-            document.getElementById('fileInput').click();
-        });
-
-        document.getElementById('fileInput').addEventListener('change', (e) => {
-            if (e.target.files[0]) {
-                this.loadImage(e.target.files[0]);
-            }
-        });
-
-        // Drag and drop for file upload
-        const uploadArea = document.getElementById('uploadArea');
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.classList.add('dragover');
-        });
-
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('dragover');
-        });
-
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.classList.remove('dragover');
-            if (e.dataTransfer.files[0]) {
-                this.loadImage(e.dataTransfer.files[0]);
-            }
-        });
-
-        // Marker type selection
-        document.querySelectorAll('.marker-type').forEach(type => {
-            type.addEventListener('click', () => {
-                document.querySelectorAll('.marker-type').forEach(t => t.classList.remove('selected'));
-                type.classList.add('selected');
-                this.state.currentMarkerType = type.dataset.type;
-                this.markerManager.updateFieldsVisibility();
-            });
-        });
-
-        // Buttons
-        document.getElementById('placeMarkerBtn').addEventListener('click', () => this.togglePlacementMode());
-        document.getElementById('saveMarkerBtn').addEventListener('click', () => this.saveMarker());
-        document.getElementById('cancelMarkerBtn').addEventListener('click', () => this.cancelMarker());
-        document.getElementById('deleteMarkerBtn').addEventListener('click', () => this.deleteMarker());
-        document.getElementById('clearMarkersBtn').addEventListener('click', () => this.clearAllMarkers());
-        document.getElementById('resetViewBtn').addEventListener('click', () => this.resetView());
-        document.getElementById('autoRotateBtn').addEventListener('click', () => this.toggleAutoRotate());
-        document.getElementById('exportBtn').addEventListener('click', () => this.exportProject());
-        document.getElementById('saveProjectBtn').addEventListener('click', () => this.saveProject());
-        document.getElementById('loadProjectBtn').addEventListener('click', () => this.loadProject());
-
-        // Export modal
-        document.getElementById('copyCodeBtn').addEventListener('click', () => this.copyExportCode());
-        document.getElementById('downloadBtn').addEventListener('click', () => this.downloadExportFile());
-        document.getElementById('closeExportBtn').addEventListener('click', () => {
-            document.getElementById('exportModal').classList.add('hidden');
-        });
-
-        // Project modal
-        document.getElementById('saveProjectConfirmBtn').addEventListener('click', () => this.saveProjectToFile());
-        document.getElementById('closeProjectBtn').addEventListener('click', () => {
-            document.getElementById('projectModal').classList.add('hidden');
-        });
-        
-        document.getElementById('projectUploadArea').addEventListener('click', () => {
-            document.getElementById('projectFileInput').click();
-        });
-        
-        document.getElementById('projectFileInput').addEventListener('change', (e) => {
-            if (e.target.files[0]) {
-                this.loadProjectFromFile(e.target.files[0]);
-            }
-        });
-        
-        document.getElementById('clearProjectsBtn').addEventListener('click', () => this.clearProjectData());
-
-        // Search
-        document.getElementById('markerSearch').addEventListener('input', () => {
-            this.markerManager.updateMarkerList();
-        });
-
-        // History controls
-        document.getElementById('undoBtn').addEventListener('click', () => this.undo());
-        document.getElementById('redoBtn').addEventListener('click', () => this.redo());
-    }
-
-    setupKeyboardShortcuts() {
-        document.addEventListener('keydown', (e) => {
-            if (e.ctrlKey || e.metaKey) {
-                switch(e.key.toLowerCase()) {
-                    case 's':
-                        e.preventDefault();
-                        this.saveProject();
-                        break;
-                    case 'o':
-                        e.preventDefault();
-                        this.loadProject();
-                        break;
-                    case 'e':
-                        e.preventDefault();
-                        this.exportProject();
-                        break;
-                    case 'z':
-                        e.preventDefault();
-                        this.undo();
-                        break;
-                    case 'y':
-                        e.preventDefault();
-                        this.redo();
-                        break;
-                }
-            }
-            
-            if (e.key === 'Delete' && this.state.selectedMarkerId) {
-                this.deleteMarker();
-            }
-            
-            if (e.key === 'Escape') {
-                this.cancelMarker();
-                if (this.state.activeInfoPanel) {
-                    this.state.activeInfoPanel.remove();
-                    this.state.activeInfoPanel = null;
-                }
-            }
-            
-            if (e.key === 'p' || e.key === 'P') {
-                e.preventDefault();
-                this.togglePlacementMode();
-            }
-        });
-    }
-
-    async loadImage(file) {
+    loadImage(file) {
         if (!file.type.match('image.*')) {
             alert('Please select an image file (JPG, PNG, etc.)');
             return;
@@ -1946,52 +2041,20 @@ class Application360 {
                 data: e.target.result
             };
             
-            this.imageManager.createSphere(e.target.result);
-            document.getElementById('currentImageName').textContent = file.name;
-            document.getElementById('imageInfo').classList.remove('hidden');
-            
-            // Clear existing markers
-            this.state.markers.forEach(marker => {
-                if (marker.object) {
-                    this.imageManager.scene.remove(marker.object);
-                }
-            });
+            this.threeJS.loadImage(e.target.result);
+            this.ui.updateImageInfo(file.name);
             this.state.markers = [];
-            this.markerManager.updateMarkerList();
-            
-            // Exit placement mode if active
-            this.state.placementMode = false;
-            document.getElementById('placeMarkerBtn').innerHTML = '<i class="fas fa-map-marker-alt"></i>';
-            document.getElementById('placeMarkerBtn').title = 'Place Marker Mode';
-            
-            // Remove preview marker
-            this.markerManager.removePreviewMarker();
-            
+            this.ui.updateMarkerList();
+            this.ui.exitPlacementMode();
             this.state.saveToHistory();
         };
-        reader.onerror = () => { alert('Error reading file. Please try again.'); };
+        
+        reader.onerror = () => alert('Error reading file. Please try again.');
         reader.readAsDataURL(file);
     }
 
-    togglePlacementMode() {
-        if (!this.state.currentImage) {
-            alert('Please upload an image first.');
-            return;
-        }
-        
-        this.state.placementMode = !this.state.placementMode;
-        
-        if (this.state.placementMode) {
-            document.getElementById('placeMarkerBtn').innerHTML = '<i class="fas fa-times"></i>';
-            document.getElementById('placeMarkerBtn').title = 'Exit Placement Mode';
-        } else {
-            document.getElementById('placeMarkerBtn').innerHTML = '<i class="fas fa-map-marker-alt"></i>';
-            document.getElementById('placeMarkerBtn').title = 'Place Marker Mode';
-        }
-    }
-
     saveMarker() {
-        if (!this.state.selectedMarkerId) {
+        if (!this.state.selectedMarkerId || !this.threeJS.previewMarker) {
             alert('Please place a marker first by clicking on the image.');
             return;
         }
@@ -2008,82 +2071,80 @@ class Application360 {
         }
         
         const url = link || video || audio;
+        const position = this.threeJS.previewMarker.position.toArray();
         
-        // Find if we're editing existing or creating new
-        let marker = this.state.getMarker(this.state.selectedMarkerId);
+        // Check if temporary ID (starts with 'temp_')
+        const isNewMarker = this.state.selectedMarkerId.startsWith('temp_');
         
-        if (marker) {
-            // Update existing marker
-            this.state.updateMarker(marker.id, {
-                title,
-                description,
-                url,
-                type: this.state.currentMarkerType
-            });
-            
-            // Update the marker object
-            this.markerManager.createMarkerObject(marker);
-        } else {
-            // Create new marker from preview
-            const previewPosition = this.markerManager.previewMarker.position.toArray();
-            marker = {
-                id: this.state.selectedMarkerId,
+        if (isNewMarker) {
+            // Create new marker with permanent ID
+            const marker = {
+                id: Date.now().toString(),
                 type: this.state.currentMarkerType,
                 title,
                 description,
                 url,
-                position: previewPosition
+                position
             };
             
             this.state.addMarker(marker);
-            this.markerManager.createMarkerObject(marker);
+            this.threeJS.createMarkerObject(marker);
+        } else {
+            // Update existing marker
+            const updated = this.state.updateMarker(this.state.selectedMarkerId, {
+                title,
+                description,
+                url,
+                type: this.state.currentMarkerType,
+                position
+            });
+            if (updated) this.threeJS.createMarkerObject(updated);
         }
         
-        // Remove preview marker
-        this.markerManager.removePreviewMarker();
-        
-        this.markerManager.updateMarkerList();
-        this.markerManager.resetForm();
-        
-        alert('Marker saved!');
+        this.threeJS.removePreviewMarker();
+        this.ui.updateMarkerList();
+        this.ui.resetForm();
+        this.ui.exitPlacementMode();
     }
 
     cancelMarker() {
-        this.markerManager.removePreviewMarker();
-        this.markerManager.resetForm();
-        this.state.placementMode = false;
-        document.getElementById('placeMarkerBtn').innerHTML = '<i class="fas fa-map-marker-alt"></i>';
-        document.getElementById('placeMarkerBtn').title = 'Place Marker Mode';
+        this.threeJS.removePreviewMarker();
+        this.ui.resetForm();
+        this.ui.exitPlacementMode();
     }
 
     deleteMarker() {
-        if (this.state.selectedMarkerId && confirm('Delete this marker?')) {
+        if (!this.state.selectedMarkerId) {
+            alert('No marker selected to delete.');
+            return;
+        }
+        
+        if (confirm('Are you sure you want to delete this marker?')) {
             const marker = this.state.getMarker(this.state.selectedMarkerId);
-            if (marker && marker.object) {
-                this.imageManager.scene.remove(marker.object);
-            }
-            this.state.deleteMarker(this.state.selectedMarkerId);
-            this.markerManager.updateMarkerList();
-            this.markerManager.resetForm();
-            
-            if (this.state.activeInfoPanel) {
-                this.state.activeInfoPanel.remove();
-                this.state.activeInfoPanel = null;
+            if (marker) {
+                this.state.deleteMarker(this.state.selectedMarkerId);
+                this.threeJS.renderAllMarkers();
+                this.ui.updateMarkerList();
+                this.ui.resetForm();
+                
+                if (this.state.activeInfoPanel) {
+                    this.state.activeInfoPanel.remove();
+                    this.state.activeInfoPanel = null;
+                }
             }
         }
     }
 
     clearAllMarkers() {
-        if (this.state.markers.length === 0) return;
+        if (this.state.markers.length === 0) {
+            alert('There are no markers to clear.');
+            return;
+        }
         
-        if (confirm(`Are you sure you want to remove all ${this.state.markers.length} markers?`)) {
-            this.state.markers.forEach(marker => {
-                if (marker.object) {
-                    this.imageManager.scene.remove(marker.object);
-                }
-            });
+        if (confirm(`Are you sure you want to delete all ${this.state.markers.length} markers?`)) {
             this.state.clearMarkers();
-            this.markerManager.updateMarkerList();
+            this.threeJS.renderAllMarkers();
+            this.ui.updateMarkerList();
             
             if (this.state.activeInfoPanel) {
                 this.state.activeInfoPanel.remove();
@@ -2093,10 +2154,10 @@ class Application360 {
     }
 
     resetView() {
-        this.imageManager.camera.rotation.set(0, 0, 0);
-        this.imageManager.camera.fov = 75;
-        this.imageManager.camera.updateProjectionMatrix();
-        this.imageManager.targetRotation.set(0, 0, 0);
+        this.threeJS.camera.rotation.set(0, 0, 0);
+        this.threeJS.camera.fov = 75;
+        this.threeJS.camera.updateProjectionMatrix();
+        this.threeJS.targetRotation.set(0, 0, 0);
         
         if (this.state.activeInfoPanel) {
             this.state.activeInfoPanel.remove();
@@ -2113,37 +2174,39 @@ class Application360 {
         btn.title = this.state.autoRotate ? 'Stop Auto-Rotate' : 'Toggle Auto-Rotate';
     }
 
+    editMarker(markerId) {
+        const marker = this.state.getMarker(markerId);
+        if (!marker) return;
+        
+        this.state.selectedMarkerId = marker.id;
+        this.state.currentMarkerType = marker.type;
+        
+        document.getElementById('markerTitle').value = marker.title;
+        document.getElementById('markerDescription').value = marker.description || '';
+        document.getElementById('markerLink').value = marker.type === 'link' ? marker.url || '' : '';
+        document.getElementById('markerVideo').value = marker.type === 'video' ? marker.url || '' : '';
+        document.getElementById('markerAudio').value = marker.type === 'audio' ? marker.url || '' : '';
+        document.getElementById('deleteMarkerBtn').style.display = 'inline-block';
+        
+        document.querySelectorAll('.marker-type').forEach(t => t.classList.remove('selected'));
+        document.querySelector(`.marker-type[data-type="${marker.type}"]`).classList.add('selected');
+        this.ui.updateFieldsVisibility();
+        document.getElementById('markerForm').classList.remove('hidden');
+    }
+
     undo() {
         if (this.state.undo()) {
-            // Remove all existing marker objects from scene
-            this.state.markers.forEach(marker => {
-                if (marker.object) {
-                    this.imageManager.scene.remove(marker.object);
-                    marker.object = null;
-                }
-            });
-            
-            // Re-create markers
-            this.markerManager.renderAllMarkers();
-            this.markerManager.updateMarkerList();
-            this.markerManager.resetForm();
+            this.threeJS.renderAllMarkers();
+            this.ui.updateMarkerList();
+            this.ui.resetForm();
         }
     }
 
     redo() {
         if (this.state.redo()) {
-            // Remove all existing marker objects from scene
-            this.state.markers.forEach(marker => {
-                if (marker.object) {
-                    this.imageManager.scene.remove(marker.object);
-                    marker.object = null;
-                }
-            });
-            
-            // Re-create markers
-            this.markerManager.renderAllMarkers();
-            this.markerManager.updateMarkerList();
-            this.markerManager.resetForm();
+            this.threeJS.renderAllMarkers();
+            this.ui.updateMarkerList();
+            this.ui.resetForm();
         }
     }
 
@@ -2161,13 +2224,12 @@ class Application360 {
             this.state.currentImage.name.replace(/\.[^/.]+$/, "") || '360° Interactive Image');
         if (!projectName) return;
         
-        const responsive = confirm('Enable responsive design for mobile devices?');
-        const smartPositioning = confirm('Use smart popup positioning (avoid off-screen popups)?');
-        
-        const html = this.exportManager.generateExportCode(projectName, { 
-            responsive, 
-            smartPositioning 
-        });
+        const html = ExportManager.generateExportCode(
+            projectName,
+            this.state.currentImage.data,
+            this.state.markers,
+            this.state.markerThemes
+        );
         
         document.getElementById('exportCode').value = html;
         document.getElementById('exportModal').classList.remove('hidden');
@@ -2180,46 +2242,41 @@ class Application360 {
         
         try {
             navigator.clipboard.writeText(exportCode.value).then(() => {
-                alert('Code copied to clipboard! Save it as an HTML file.');
+                alert('Code copied to clipboard!');
             });
         } catch (err) {
-            try {
-                document.execCommand('copy');
-                alert('Code copied to clipboard! Save it as an HTML file.');
-            } catch (err) {
-                alert('Failed to copy code. Please select and copy manually.');
-            }
+            document.execCommand('copy');
+            alert('Code copied to clipboard!');
         }
     }
 
     downloadExportFile() {
         const exportCode = document.getElementById('exportCode').value;
+        if (!exportCode) {
+            alert('No export code generated. Please export first.');
+            return;
+        }
+        
         const blob = new Blob([exportCode], { type: 'text/html' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        
         const projectName = this.state.currentImage?.name.replace(/\.[^/.]+$/, "") || '360-viewer';
         a.download = `${projectName}.html`;
-        
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
     }
 
-    saveProject() {
+    openProjectModal() {
         if (!this.state.currentImage) {
             alert('Please upload an image first.');
             return;
         }
         
-        document.getElementById('projectName').value = this.state.currentImage.name.replace(/\.[^/.]+$/, "") || 'My360Project';
-        document.getElementById('projectModal').classList.remove('hidden');
-        this.loadSavedProjectsList();
-    }
-
-    loadProject() {
+        document.getElementById('projectName').value = 
+            this.state.currentImage.name.replace(/\.[^/.]+$/, "") || 'My360Project';
         document.getElementById('projectModal').classList.remove('hidden');
         this.loadSavedProjectsList();
     }
@@ -2236,14 +2293,7 @@ class Application360 {
             name: projectName,
             timestamp: new Date().toISOString(),
             image: this.state.currentImage,
-            markers: this.state.markers.map(marker => ({
-                id: marker.id,
-                type: marker.type,
-                title: marker.title,
-                description: marker.description,
-                url: marker.url,
-                position: marker.position
-            }))
+            markers: this.state.markers
         };
         
         const jsonStr = JSON.stringify(projectData, null, 2);
@@ -2258,7 +2308,6 @@ class Application360 {
         URL.revokeObjectURL(url);
         
         this.saveProjectToLocalStorage(projectData);
-        
         alert(`Project saved as: ${a.download}`);
         document.getElementById('projectModal').classList.add('hidden');
     }
@@ -2270,42 +2319,31 @@ class Application360 {
                 const projectData = JSON.parse(e.target.result);
                 this.loadProjectData(projectData);
             } catch (error) {
-                alert('Error loading project file. Please make sure it\'s a valid project file from this tool.');
-                console.error('Project load error:', error);
+                alert('Error loading project file. Please make sure it\'s a valid project file.');
             }
         };
-        reader.onerror = () => {
-            alert('Error reading project file. Please try again.');
-        };
+        reader.onerror = () => alert('Error reading project file.');
         reader.readAsText(file);
     }
 
     loadProjectData(projectData) {
-        // Clear existing markers
-        this.clearAllMarkers();
+        this.state.markers = [];
+        this.threeJS.renderAllMarkers();
         
-        // Load image
         if (projectData.image && projectData.image.data) {
             this.state.currentImage = projectData.image;
-            this.imageManager.createSphere(projectData.image.data);
-            document.getElementById('currentImageName').textContent = projectData.image.name || 'Loaded Project';
-            document.getElementById('imageInfo').classList.remove('hidden');
+            this.threeJS.loadImage(projectData.image.data);
+            this.ui.updateImageInfo(projectData.image.name || 'Loaded Project');
         }
         
-        // Load markers
         if (projectData.markers && Array.isArray(projectData.markers)) {
-            this.state.markers = projectData.markers.map(markerData => ({
-                ...markerData,
-                object: null
-            }));
-            
-            this.markerManager.renderAllMarkers();
-            this.markerManager.updateMarkerList();
+            this.state.markers = projectData.markers;
+            this.threeJS.renderAllMarkers();
+            this.ui.updateMarkerList();
         }
         
         document.getElementById('projectModal').classList.add('hidden');
         alert(`Project "${projectData.name}" loaded successfully!`);
-        
         this.state.saveToHistory();
     }
 
@@ -2353,12 +2391,12 @@ class Application360 {
                     <div class="project-item-header">
                         <div class="project-item-title">
                             <i class="fas fa-project-diagram"></i>
-                            ${project.name}
+                            ${this.ui.escapeHtml(project.name)}
                         </div>
                         <span class="marker-item-type">${project.markers?.length || 0} markers</span>
                     </div>
                     <div class="project-item-meta">
-                        ${project.image?.name || 'No image name'} • ${dateStr}
+                        ${this.ui.escapeHtml(project.image?.name || 'No image name')} • ${dateStr}
                     </div>
                 `;
                 
@@ -2371,24 +2409,26 @@ class Application360 {
                 projectsList.appendChild(projectItem);
             });
         } catch (error) {
-            console.error('Error loading projects list:', error);
             projectsList.innerHTML = '<p style="color: #e63946; text-align: center; padding: 20px;">Error loading saved projects</p>';
         }
     }
 
     clearProjectData() {
-        if (confirm('Clear all project data? This will remove all saved projects from this browser.')) {
+        if (confirm('Clear all project data from browser storage?')) {
             localStorage.removeItem('360Projects');
             this.loadSavedProjectsList();
             alert('All saved projects have been cleared.');
         }
     }
+
+    // Alias methods for UI
+    updateMarkerList() { this.ui.updateMarkerList(); }
 }
 
-// ====================== START APPLICATION ======================
+// Initialize application
 document.addEventListener('DOMContentLoaded', () => {
-    window.app360 = new Application360();
+    window.app = new Application();
 });
-</script>
+    </script>
 </body>
 </html>
