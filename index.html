@@ -1,0 +1,2394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>360° Image Marker Tool</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        /* === ENHANCED 360° STYLES === */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { display: flex; flex-direction: column; height: 100vh; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: #e6e6e6; overflow: hidden; }
+        
+        .header { 
+            background: rgba(0, 0, 0, 0.7); 
+            padding: 15px 20px; 
+            border-bottom: 2px solid #00b4d8; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            flex-shrink: 0; 
+        }
+        .header h1 { 
+            color: #00b4d8; 
+            font-size: 2.5rem; 
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .header-controls { display: flex; gap: 10px; }
+        
+        .main-container { 
+            display: flex; 
+            flex: 1; 
+            overflow: hidden; 
+        }
+        
+        .left-panel { 
+            width: 320px; 
+            background: rgba(30, 30, 46, 0.9); 
+            padding: 20px; 
+            overflow-y: auto; 
+            border-right: 1px solid #444; 
+            flex-shrink: 0; 
+        }
+        .panel-section { 
+            margin-bottom: 25px; 
+            padding-bottom: 20px; 
+            border-bottom: 1px solid #444; 
+        }
+        .panel-section h3 { 
+            color: #00b4d8; 
+            margin-bottom: 15px; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+        }
+        
+        .upload-area { 
+            border: 3px dashed #00b4d8; 
+            border-radius: 10px; 
+            padding: 30px 20px; 
+            text-align: center; 
+            cursor: pointer; 
+            transition: all 0.3s; 
+            background: rgba(0, 180, 216, 0.05); 
+            margin-bottom: 20px; 
+        }
+        .upload-area.dragover { 
+            background: rgba(0, 180, 216, 0.2); 
+            border-color: #90e0ef; 
+        }
+        .upload-area:hover { 
+            background: rgba(0, 180, 216, 0.1); 
+            border-color: #90e0ef; 
+        }
+        .upload-area i { 
+            font-size: 48px; 
+            color: #00b4d8; 
+            margin-bottom: 15px; 
+        }
+        .upload-area p { margin: 10px 0; }
+        .upload-area .file-info { 
+            font-size: 0.9rem; 
+            color: #aaa; 
+        }
+        
+        .button { 
+            display: inline-block; 
+            padding: 12px 20px; 
+            margin: 5px 0; 
+            border: none; 
+            border-radius: 6px; 
+            background: #00b4d8; 
+            color: white; 
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: all 0.3s; 
+            text-align: center; 
+            text-decoration: none;
+        }
+        .button:hover { 
+            background: #0077b6; 
+            transform: translateY(-2px); 
+        }
+        .button:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .button.full { width: 100%; }
+        .button.secondary { background: #444; }
+        .button.secondary:hover { background: #555; }
+        .button.danger { background: #e63946; }
+        .button.danger:hover { background: #d00000; }
+        .button.warning { background: #f8961e; color: #000; }
+        .button.warning:hover { background: #e68a1b; }
+        .button i { margin-right: 8px; }
+        
+        .marker-type-selector { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 10px; 
+            margin-bottom: 15px; 
+        }
+        .marker-type { 
+            padding: 10px; 
+            border: 2px solid transparent; 
+            border-radius: 6px; 
+            text-align: center; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+            background: rgba(255, 255, 255, 0.05); 
+        }
+        .marker-type.selected { 
+            border-color: #00b4d8; 
+            background: rgba(0, 180, 216, 0.1); 
+        }
+        .marker-type i { 
+            font-size: 20px; 
+            margin-bottom: 5px; 
+            display: block; 
+        }
+        .marker-type.info { color: #4cc9f0; }
+        .marker-type.link { color: #4361ee; }
+        .marker-type.video { color: #f72585; }
+        .marker-type.audio { color: #7209b7; }
+        .marker-type.warning { color: #f8961e; }
+        .marker-type.question { color: #2a9d8f; }
+        
+        .marker-form input, 
+        .marker-form textarea { 
+            width: 100%; 
+            padding: 10px; 
+            margin-bottom: 12px; 
+            border: 1px solid #555; 
+            border-radius: 4px; 
+            background: rgba(255, 255, 255, 0.1); 
+            color: white; 
+        }
+        .marker-form textarea { 
+            height: 80px; 
+            resize: vertical; 
+        }
+        .url-field { display: none; }
+        .url-field.visible { display: block; }
+        
+        .marker-list { 
+            max-height: 300px; 
+            overflow-y: auto; 
+        }
+        .marker-item { 
+            background: rgba(255, 255, 255, 0.05); 
+            border-left: 4px solid #00b4d8; 
+            padding: 12px; 
+            margin-bottom: 10px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+            display: flex;
+            flex-direction: column;
+        }
+        .marker-item:hover { 
+            background: rgba(255, 255, 255, 0.1); 
+        }
+        .marker-item.selected { 
+            background: rgba(0, 180, 216, 0.15); 
+            border-left-color: #90e0ef;
+        }
+        .marker-item-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        .marker-item-title { 
+            font-weight: bold; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+        }
+        .marker-item-type { 
+            font-size: 0.8rem; 
+            padding: 2px 8px; 
+            border-radius: 10px; 
+            background: rgba(255, 255, 255, 0.1); 
+        }
+        .marker-item-description { 
+            font-size: 0.9rem; 
+            color: #aaa; 
+            margin-top: 5px; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+            white-space: nowrap; 
+        }
+        .marker-item-actions { 
+            display: flex; 
+            gap: 5px; 
+            margin-top: 10px; 
+        }
+        .marker-action-btn { 
+            padding: 4px 10px; 
+            border: none; 
+            border-radius: 4px; 
+            font-size: 0.8rem; 
+            cursor: pointer; 
+        }
+        .marker-action-btn.edit { 
+            background: #00b4d8; 
+            color: white; 
+        }
+        .marker-action-btn.delete { 
+            background: #e63946; 
+            color: white; 
+        }
+        
+        .viewer-container { 
+            flex: 1; 
+            position: relative; 
+            overflow: hidden; 
+        }
+        
+        #viewer { 
+            width: 100%; 
+            height: 100%; 
+        }
+        
+        /* NEW: Dragging state for 3D markers */
+        .marker.dragging {
+            opacity: 0.8 !important;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.7));
+            transform: scale(1.2) !important;
+            cursor: grabbing !important;
+        }
+        
+        /* REMOVED: Instructions overlay from editor - only for exported files */
+        .instructions { 
+            display: none; /* Completely remove from editor */
+        }
+        
+        /* In-world marker info panel */
+        .marker-info-panel {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.95);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #00b4d8;
+            max-width: 300px;
+            min-width: 250px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            pointer-events: auto;
+            backdrop-filter: blur(5px);
+            transition: opacity 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .marker-info-panel h4 {
+            color: #00b4d8;
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .marker-info-panel p {
+            margin: 8px 0;
+            line-height: 1.4;
+        }
+        
+        .marker-info-panel a {
+            color: #4cc9f0;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 10px;
+            padding: 6px 12px;
+            background: rgba(76, 201, 240, 0.1);
+            border-radius: 4px;
+            transition: background 0.3s;
+            word-break: break-all;
+        }
+        
+        .marker-info-panel a:hover {
+            background: rgba(76, 201, 240, 0.2);
+        }
+        
+        .marker-info-panel .close-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: transparent;
+            border: none;
+            color: #aaa;
+            cursor: pointer;
+            font-size: 18px;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+        
+        .marker-info-panel .close-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        /* Project item styles */
+        .project-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 4px solid #2a9d8f;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .project-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .project-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .project-item-title {
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .project-item-meta {
+            font-size: 0.8rem;
+            color: #aaa;
+            margin-top: 5px;
+        }
+        
+        /* Modals */
+        .modal-overlay { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0, 0, 0, 0.8); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            z-index: 1000; 
+        }
+        .modal { 
+            background: #1a1a2e; 
+            padding: 30px; 
+            border-radius: 10px; 
+            max-width: 800px; 
+            width: 90%; 
+            max-height: 80vh; 
+            overflow-y: auto; 
+            border: 2px solid #00b4d8; 
+        }
+        .modal h3 { 
+            color: #00b4d8; 
+            margin-bottom: 20px; 
+            text-align: center; 
+        }
+        .modal textarea { 
+            width: 100%; 
+            height: 400px; 
+            padding: 15px; 
+            background: rgba(255, 255, 255, 0.05); 
+            border: 1px solid #444; 
+            border-radius: 5px; 
+            color: white; 
+            font-family: monospace; 
+            font-size: 12px; 
+            margin-bottom: 20px; 
+            resize: none; 
+            white-space: pre; 
+            overflow-x: auto; 
+        }
+        .modal-buttons { display: flex; gap: 10px; justify-content: center; }
+        
+        /* Hidden class */
+        .hidden { display: none !important; }
+        .visible { display: block !important; }
+        
+        /* Controls */
+        .viewer-controls { 
+            position: absolute; 
+            bottom: 20px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            display: flex; 
+            gap: 10px; 
+            z-index: 10; 
+        }
+        .control-btn { 
+            background: rgba(0, 0, 0, 0.7); 
+            color: white; 
+            border: none; 
+            width: 50px; 
+            height: 50px; 
+            border-radius: 50%; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 1.2rem; 
+            transition: all 0.3s; 
+        }
+        .control-btn:hover { 
+            background: rgba(0, 180, 216, 0.8); 
+            transform: scale(1.1); 
+        }
+        
+        /* Utility classes */
+        .search-box { margin-bottom: 15px; }
+        .search-box input { 
+            width: 100%; 
+            padding: 10px; 
+            border-radius: 4px; 
+            background: rgba(255, 255, 255, 0.1); 
+            border: 1px solid #555; 
+            color: white; 
+        }
+        .form-buttons { display: flex; flex-wrap: wrap; gap: 10px; }
+        .shortcut-hint { 
+            font-size: 0.8rem; 
+            color: #aaa; 
+            margin-top: 10px; 
+            text-align: center; 
+        }
+        .history-controls { display: flex; gap: 10px; margin-top: 10px; }
+        
+        /* Link preview styles in info panels */
+        .link-preview { 
+            margin-top: 10px; 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            border-radius: 6px; 
+            overflow: hidden; 
+            background: rgba(255, 255, 255, 0.05); 
+        }
+        .link-preview a { 
+            text-decoration: none; 
+            color: inherit; 
+            display: block; 
+        }
+        .link-preview-image { 
+            width: 100%; 
+            height: 120px; 
+            object-fit: cover; 
+            background: linear-gradient(45deg, #1a1a2e, #16213e); 
+        }
+        .link-preview-content { 
+            padding: 10px; 
+        }
+        .link-preview-title { 
+            font-weight: bold; 
+            margin: 0 0 6px 0; 
+            font-size: 13px; 
+            color: #e6e6e6; 
+        }
+        .link-preview-description { 
+            color: #aaa; 
+            font-size: 11px; 
+            margin: 0; 
+            line-height: 1.4; 
+        }
+        .link-preview-domain { 
+            color: #888; 
+            font-size: 10px; 
+            margin-top: 6px; 
+            display: flex; 
+            align-items: center; 
+        }
+        .link-preview-domain i { 
+            margin-right: 4px; 
+            font-size: 9px; 
+        }
+        
+        @media (max-width: 1024px) { 
+            .main-container { flex-direction: column; } 
+            .left-panel { width: 100%; max-height: 40vh; } 
+        }
+        @media (max-width: 768px) { 
+            .header { flex-direction: column; gap: 10px; text-align: center; } 
+            .marker-type-selector { grid-template-columns: repeat(2, 1fr); } 
+            .button { padding: 10px 15px; } 
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <div class="header">
+        <h1><i class="fas fa-globe-americas"></i> 360° Image Marker Tool</h1>
+        <div class="header-controls">
+            <button class="button secondary" id="saveProjectBtn">
+                <i class="fas fa-save"></i> Save Project
+            </button>
+            <button class="button secondary" id="loadProjectBtn">
+                <i class="fas fa-folder-open"></i> Load Project
+            </button>
+            <button class="button secondary" id="exportBtn">
+                <i class="fas fa-file-export"></i> Export HTML
+            </button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <!-- LEFT PANEL -->
+        <div class="left-panel">
+            <div class="panel-section">
+                <h3><i class="fas fa-upload"></i> Upload 360° Image</h3>
+                <div class="upload-area" id="uploadArea">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Click or drag & drop to upload 360° image</p>
+                    <p class="file-info">Supported: JPG, PNG (Equirectangular format)</p>
+                    <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.webp" style="display: none;">
+                </div>
+                <div id="imageInfo" class="hidden">
+                    <p><strong>Current Image:</strong> <span id="currentImageName">None</span></p>
+                    <p><strong>Markers:</strong> <span id="markerCount">0</span></p>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <h3><i class="fas fa-map-marker-alt"></i> Add Marker</h3>
+                <div class="marker-type-selector" id="markerTypeSelector">
+                    <div class="marker-type info selected" data-type="info"><i class="fas fa-info-circle"></i><span>Info</span></div>
+                    <div class="marker-type link" data-type="link"><i class="fas fa-link"></i><span>Link</span></div>
+                    <div class="marker-type video" data-type="video"><i class="fas fa-video"></i><span>Video</span></div>
+                    <div class="marker-type audio" data-type="audio"><i class="fas fa-volume-up"></i><span>Audio</span></div>
+                    <div class="marker-type warning" data-type="warning"><i class="fas fa-exclamation-triangle"></i><span>Warning</span></div>
+                    <div class="marker-type question" data-type="question"><i class="fas fa-question-circle"></i><span>Question</span></div>
+                </div>
+                
+                <div class="marker-form" id="markerForm">
+                    <input type="text" id="markerTitle" placeholder="Marker Title" maxlength="50">
+                    <textarea id="markerDescription" placeholder="Description (optional)"></textarea>
+                    <input type="url" id="markerLink" class="url-field" placeholder="https://example.com">
+                    <input type="url" id="markerVideo" class="url-field" placeholder="https://youtube.com/watch?v=...">
+                    <input type="url" id="markerAudio" class="url-field" placeholder="https://example.com/audio.mp3">
+                    
+                    <div class="form-buttons">
+                        <button class="button" id="saveMarkerBtn"><i class="fas fa-save"></i> Save Marker</button>
+                        <button class="button secondary" id="cancelMarkerBtn"><i class="fas fa-times"></i> Cancel</button>
+                        <button class="button danger" id="deleteMarkerBtn" style="display: none;"><i class="fas fa-trash"></i> Delete Marker</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <h3><i class="fas fa-list"></i> Markers (<span id="markerListCount">0</span>)</h3>
+                <div class="search-box">
+                    <input type="text" id="markerSearch" placeholder="Search markers...">
+                </div>
+                <div class="marker-list" id="markerList">
+                    <div class="empty-state">No markers added</div>
+                </div>
+                <button class="button danger" id="clearMarkersBtn"><i class="fas fa-trash"></i> Clear All Markers</button>
+            </div>
+
+            <div class="panel-section">
+                <h3><i class="fas fa-project-diagram"></i> Tools</h3>
+                <div class="history-controls">
+                    <button id="undoBtn" class="button warning" title="Undo (Ctrl+Z)" disabled>
+                        <i class="fas fa-undo"></i> Undo
+                    </button>
+                    <button id="redoBtn" class="button warning" title="Redo (Ctrl+Y)" disabled>
+                        <i class="fas fa-redo"></i> Redo
+                    </button>
+                </div>
+                <div class="shortcut-hint">
+                    Shortcuts: Ctrl+S (Save), Ctrl+O (Load), Ctrl+E (Export), Del (Delete), Esc (Cancel)
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEWER AREA -->
+        <div class="viewer-container">
+            <div id="viewer"></div>
+            
+            <!-- REMOVED: Instructions overlay from editor - only for exported files -->
+            <!-- No instructions div here - it's only in the exported HTML -->
+            
+            <div class="viewer-controls">
+                <button class="control-btn" id="placeMarkerBtn" title="Place Marker Mode">
+                    <i class="fas fa-map-marker-alt"></i>
+                </button>
+                <button class="control-btn" id="resetViewBtn" title="Reset View">
+                    <i class="fas fa-redo"></i>
+                </button>
+                <button class="control-btn" id="autoRotateBtn" title="Toggle Auto-Rotate">
+                    <i class="fas fa-sync"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EXPORT MODAL -->
+    <div class="modal-overlay hidden" id="exportModal">
+        <div class="modal">
+            <h3><i class="fas fa-file-export"></i> Export as HTML</h3>
+            <textarea id="exportCode" readonly></textarea>
+            <div class="modal-buttons">
+                <button class="button" id="copyCodeBtn"><i class="fas fa-copy"></i> Copy Code</button>
+                <button class="button secondary" id="downloadBtn"><i class="fas fa-download"></i> Download HTML</button>
+                <button class="button secondary" id="closeExportBtn"><i class="fas fa-times"></i> Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SAVE/LOAD MODAL -->
+    <div class="modal-overlay hidden" id="projectModal">
+        <div class="modal" style="max-width: 500px;">
+            <h3><i class="fas fa-project-diagram"></i> Project Management</h3>
+            
+            <div class="panel-section" style="margin-bottom: 20px; border: 1px solid #444; padding: 15px; border-radius: 5px;">
+                <h4><i class="fas fa-save"></i> Save Current Project</h4>
+                <p style="margin-bottom: 15px; color: #aaa; font-size: 0.9rem;">
+                    Save your image and all markers to continue editing later.
+                </p>
+                <input type="text" id="projectName" placeholder="Enter project name" style="width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 4px; background: rgba(255, 255, 255, 0.1); border: 1px solid #555; color: white;">
+                <button class="button" id="saveProjectConfirmBtn" style="width: 100%;">
+                    <i class="fas fa-save"></i> Save Project File
+                </button>
+            </div>
+            
+            <div class="panel-section" style="margin-bottom: 20px; border: 1px solid #444; padding: 15px; border-radius: 5px;">
+                <h4><i class="fas fa-folder-open"></i> Load Project</h4>
+                <p style="margin-bottom: 15px; color: #aaa; font-size: 0.9rem;">
+                    Load a previously saved project file.
+                </p>
+                <div class="upload-area" id="projectUploadArea" style="margin-bottom: 15px; padding: 20px;">
+                    <i class="fas fa-file-upload"></i>
+                    <p>Click or drag & drop project file</p>
+                    <p class="file-info">Only .json files exported from this tool</p>
+                    <input type="file" id="projectFileInput" accept=".json" style="display: none;">
+                </div>
+                
+                <div id="savedProjectsList" style="max-height: 200px; overflow-y: auto; margin-top: 15px;">
+                    <!-- Saved projects will be listed here -->
+                </div>
+                
+                <button class="button danger" id="clearProjectsBtn" style="margin-top: 15px; width: 100%;">
+                    <i class="fas fa-trash"></i> Clear All Saved Projects
+                </button>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="button secondary" id="closeProjectBtn">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+<script>
+// ====================== ENHANCED 360° APPLICATION ======================
+class AppState360 {
+    constructor() {
+        this.markers = [];
+        this.currentImage = null;
+        this.selectedMarkerId = null;
+        this.currentMarkerType = 'info';
+        this.history = [];
+        this.historyIndex = -1;
+        this.autoRotate = false;
+        this.draggingMarker = null;
+        this.dragStartPoint = new THREE.Vector2();
+        this.markerStartPosition = new THREE.Vector3();
+        this.activeInfoPanel = null;
+        this.placementMode = false;
+        this.markerThemes = {
+            info: { color: 0x4cc9f0, icon: 'fa-info-circle' },
+            link: { color: 0x4361ee, icon: 'fa-link' },
+            video: { color: 0xf72585, icon: 'fa-video' },
+            audio: { color: 0x7209b7, icon: 'fa-volume-up' },
+            warning: { color: 0xf8961e, icon: 'fa-exclamation-triangle' },
+            question: { color: 0x2a9d8f, icon: 'fa-question-circle' }
+        };
+    }
+
+    addMarker(marker) {
+        this.markers.push(marker);
+        this.saveToHistory();
+    }
+
+    updateMarker(id, updates) {
+        const index = this.markers.findIndex(m => m.id === id);
+        if (index !== -1) {
+            this.markers[index] = { ...this.markers[index], ...updates };
+            this.saveToHistory();
+            return this.markers[index];
+        }
+        return null;
+    }
+
+    deleteMarker(id) {
+        this.markers = this.markers.filter(m => m.id !== id);
+        this.saveToHistory();
+    }
+
+    clearMarkers() {
+        this.markers = [];
+        this.saveToHistory();
+    }
+
+    getMarker(id) {
+        return this.markers.find(m => m.id === id);
+    }
+
+    saveToHistory() {
+        this.history = this.history.slice(0, this.historyIndex + 1);
+        this.history.push({
+            markers: JSON.parse(JSON.stringify(this.markers)),
+            image: this.currentImage ? { ...this.currentImage } : null
+        });
+        this.historyIndex++;
+        this.updateHistoryControls();
+    }
+
+    undo() {
+        if (this.historyIndex > 0) {
+            this.historyIndex--;
+            const state = this.history[this.historyIndex];
+            this.markers = state.markers ? JSON.parse(JSON.stringify(state.markers)) : [];
+            this.currentImage = state.image ? { ...state.image } : null;
+            this.updateHistoryControls();
+            return true;
+        }
+        return false;
+    }
+
+    redo() {
+        if (this.historyIndex < this.history.length - 1) {
+            this.historyIndex++;
+            const state = this.history[this.historyIndex];
+            this.markers = state.markers ? JSON.parse(JSON.stringify(state.markers)) : [];
+            this.currentImage = state.image ? { ...state.image } : null;
+            this.updateHistoryControls();
+            return true;
+        }
+        return false;
+    }
+
+    updateHistoryControls() {
+        const undoBtn = document.getElementById('undoBtn');
+        const redoBtn = document.getElementById('redoBtn');
+        if (undoBtn) undoBtn.disabled = this.historyIndex <= 0;
+        if (redoBtn) redoBtn.disabled = this.historyIndex >= this.history.length - 1;
+    }
+}
+
+class MarkerManager360 {
+    constructor(state, scene) {
+        this.state = state;
+        this.scene = scene;
+        this.raycaster = new THREE.Raycaster();
+        this.mouse = new THREE.Vector2();
+        this.previewMarker = null;
+        this.isDragging = false;
+        this.draggingMarker = null;
+    }
+
+    createMarkerIcon(type, color) {
+        const canvas = document.createElement('canvas');
+        const size = 128;
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        
+        // Draw background circle with gradient
+        const gradient = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
+        gradient.addColorStop(0, `#${color.toString(16).padStart(6, '0')}80`);
+        gradient.addColorStop(1, `#${color.toString(16).padStart(6, '0')}`);
+        
+        ctx.beginPath();
+        ctx.arc(size/2, size/2, size/2 - 4, 0, Math.PI * 2);
+        ctx.fillStyle = gradient;
+        ctx.fill();
+        
+        // White border
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 4;
+        ctx.stroke();
+        
+        // Font Awesome icons Unicode
+        const iconMap = {
+            info: '\uf05a',
+            link: '\uf0c1',
+            video: '\uf03d',
+            audio: '\uf028',
+            warning: '\uf071',
+            question: '\uf059'
+        };
+        
+        // Draw icon
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 64px "Font Awesome 5 Free"';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(iconMap[type], size/2, size/2);
+        
+        return canvas;
+    }
+
+    createMarkerObject(marker) {
+        if (marker.object) {
+            this.scene.remove(marker.object);
+            if (marker.object.material) {
+                if (marker.object.material.map) marker.object.material.map.dispose();
+                marker.object.material.dispose();
+            }
+        }
+        
+        const canvas = this.createMarkerIcon(marker.type, this.state.markerThemes[marker.type].color);
+        const texture = new THREE.CanvasTexture(canvas);
+        
+        const spriteMaterial = new THREE.SpriteMaterial({ 
+            map: texture,
+            transparent: true,
+            opacity: 0.9,
+            depthWrite: false,
+            depthTest: false,
+            alphaTest: 0.1
+        });
+        
+        const sprite = new THREE.Sprite(spriteMaterial);
+        sprite.position.set(...marker.position);
+        sprite.scale.set(30, 30, 1);
+        sprite.userData = { markerId: marker.id, type: marker.type };
+        sprite.renderOrder = 999;
+        
+        this.scene.add(sprite);
+        marker.object = sprite;
+        return sprite;
+    }
+
+    renderAllMarkers() {
+        this.state.markers.forEach(marker => {
+            this.createMarkerObject(marker);
+        });
+    }
+
+    removePreviewMarker() {
+        if (this.previewMarker) {
+            this.scene.remove(this.previewMarker);
+            if (this.previewMarker.material) {
+                if (this.previewMarker.material.map) this.previewMarker.material.map.dispose();
+                this.previewMarker.material.dispose();
+            }
+            this.previewMarker = null;
+        }
+    }
+
+    createPreviewMarker(position, type) {
+        this.removePreviewMarker();
+        
+        const canvas = this.createMarkerIcon(type, this.state.markerThemes[type].color);
+        const texture = new THREE.CanvasTexture(canvas);
+        const spriteMaterial = new THREE.SpriteMaterial({ 
+            map: texture,
+            transparent: true,
+            opacity: 0.6,
+            depthWrite: false,
+            depthTest: false,
+            alphaTest: 0.1
+        });
+        
+        this.previewMarker = new THREE.Sprite(spriteMaterial);
+        this.previewMarker.position.copy(position);
+        this.previewMarker.scale.set(30, 30, 1);
+        this.previewMarker.renderOrder = 998;
+        
+        this.scene.add(this.previewMarker);
+        return this.previewMarker;
+    }
+
+    getIntersectedMarker(mouse, camera) {
+        this.mouse.x = (mouse.x / window.innerWidth) * 2 - 1;
+        this.mouse.y = -(mouse.y / window.innerHeight) * 2 + 1;
+        
+        this.raycaster.setFromCamera(this.mouse, camera);
+        
+        const markerObjects = this.scene.children.filter(obj => 
+            obj.type === 'Sprite' && obj !== this.previewMarker
+        );
+        
+        const intersects = this.raycaster.intersectObjects(markerObjects);
+        if (intersects.length > 0) {
+            const sprite = intersects[0].object;
+            return this.state.getMarker(sprite.userData.markerId);
+        }
+        return null;
+    }
+
+    showMarkerInfo(marker) {
+        // Remove existing info panel
+        if (this.state.activeInfoPanel) {
+            this.state.activeInfoPanel.remove();
+        }
+        
+        const infoPanel = document.createElement('div');
+        infoPanel.className = 'marker-info-panel';
+        
+        let content = `<button class="close-btn">&times;</button>
+                      <h4><i class="fas ${this.state.markerThemes[marker.type].icon}"></i> ${marker.title}</h4>`;
+        
+        if (marker.description) {
+            content += `<p>${marker.description}</p>`;
+        }
+        
+        if (marker.url) {
+            let linkText = 'Open Link';
+            if (marker.type === 'video') linkText = 'Watch Video';
+            else if (marker.type === 'audio') linkText = 'Play Audio';
+            
+            content += `<a href="${marker.url}" target="_blank">${linkText} <i class="fas fa-external-link-alt"></i></a>`;
+        }
+        
+        infoPanel.innerHTML = content;
+        
+        // Add close button functionality
+        const closeBtn = infoPanel.querySelector('.close-btn');
+        closeBtn.addEventListener('click', () => {
+            infoPanel.remove();
+            this.state.activeInfoPanel = null;
+        });
+        
+        // Position panel
+        this.positionInfoPanelAtMarker(infoPanel, marker);
+        
+        document.querySelector('.viewer-container').appendChild(infoPanel);
+        this.state.activeInfoPanel = infoPanel;
+        
+        // Auto-close after 10 seconds
+        setTimeout(() => {
+            if (this.state.activeInfoPanel === infoPanel) {
+                infoPanel.remove();
+                this.state.activeInfoPanel = null;
+            }
+        }, 10000);
+    }
+
+    positionInfoPanelAtMarker(panel, marker) {
+        if (!marker.object) return;
+        
+        const markerPosition = marker.object.position.clone();
+        const vector = markerPosition.clone();
+        vector.project(window.camera);
+        
+        const viewerRect = document.getElementById('viewer').getBoundingClientRect();
+        const x = (vector.x * 0.5 + 0.5) * viewerRect.width;
+        const y = (-vector.y * 0.5 + 0.5) * viewerRect.height;
+        
+        let left = x + 20;
+        let top = y + 20;
+        
+        const panelWidth = panel.offsetWidth || 250;
+        const panelHeight = panel.offsetHeight || 200;
+        
+        if (left + panelWidth > viewerRect.width) {
+            left = x - panelWidth - 20;
+        }
+        
+        if (top + panelHeight > viewerRect.height) {
+            top = y - panelHeight - 20;
+        }
+        
+        left = Math.max(10, Math.min(viewerRect.width - panelWidth - 10, left));
+        top = Math.max(10, Math.min(viewerRect.height - panelHeight - 10, top));
+        
+        panel.style.left = left + 'px';
+        panel.style.top = top + 'px';
+    }
+
+    updateMarkerList() {
+        const markerList = document.getElementById('markerList');
+        const listCount = document.getElementById('markerListCount');
+        const markerCount = document.getElementById('markerCount');
+        const searchTerm = document.getElementById('markerSearch').value.toLowerCase();
+        
+        if (this.state.markers.length === 0) {
+            markerList.innerHTML = '<div class="empty-state">No markers added</div>';
+            listCount.textContent = '0';
+            markerCount.textContent = '0';
+            return;
+        }
+        
+        const filteredMarkers = this.state.markers.filter(marker => 
+            marker.title.toLowerCase().includes(searchTerm) ||
+            (marker.description && marker.description.toLowerCase().includes(searchTerm)) ||
+            marker.type.includes(searchTerm)
+        );
+        
+        let html = '';
+        filteredMarkers.forEach(marker => {
+            html += `
+                <div class="marker-item" data-id="${marker.id}">
+                    <div class="marker-item-header">
+                        <div class="marker-item-title">
+                            <i class="fas ${this.state.markerThemes[marker.type].icon}"></i>
+                            ${marker.title}
+                        </div>
+                        <span class="marker-item-type">${marker.type}</span>
+                    </div>
+                    <div class="marker-item-description">${marker.description || 'No description'}</div>
+                    <div class="marker-item-actions">
+                        <button class="marker-action-btn edit" data-id="${marker.id}">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="marker-action-btn delete" data-id="${marker.id}">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+        
+        markerList.innerHTML = html;
+        listCount.textContent = this.state.markers.length;
+        markerCount.textContent = this.state.markers.length;
+        
+        // Add event listeners
+        markerList.querySelectorAll('.marker-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                if (e.target.closest('.marker-action-btn')) return;
+                
+                const markerId = item.dataset.id;
+                const marker = this.state.getMarker(markerId);
+                if (marker) {
+                    this.showMarkerInfo(marker);
+                }
+            });
+        });
+        
+        markerList.querySelectorAll('.edit').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const markerId = btn.dataset.id;
+                const marker = this.state.getMarker(markerId);
+                if (marker) {
+                    this.editMarker(marker);
+                }
+            });
+        });
+        
+        markerList.querySelectorAll('.delete').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const markerId = btn.dataset.id;
+                if (confirm('Delete this marker?')) {
+                    const marker = this.state.getMarker(markerId);
+                    if (marker && marker.object) {
+                        this.scene.remove(marker.object);
+                    }
+                    this.state.deleteMarker(markerId);
+                    this.updateMarkerList();
+                    if (this.state.activeInfoPanel) {
+                        this.state.activeInfoPanel.remove();
+                        this.state.activeInfoPanel = null;
+                    }
+                }
+            });
+        });
+    }
+
+    editMarker(marker) {
+        this.state.selectedMarkerId = marker.id;
+        this.state.currentMarkerType = marker.type;
+        
+        document.getElementById('markerTitle').value = marker.title;
+        document.getElementById('markerDescription').value = marker.description || '';
+        document.getElementById('markerLink').value = marker.url || '';
+        document.getElementById('markerVideo').value = marker.url || '';
+        document.getElementById('markerAudio').value = marker.url || '';
+        document.getElementById('deleteMarkerBtn').style.display = 'inline-block';
+        
+        // Update type selector
+        document.querySelectorAll('.marker-type').forEach(t => t.classList.remove('selected'));
+        document.querySelector(`.marker-type[data-type="${marker.type}"]`).classList.add('selected');
+        
+        // Update URL field visibility
+        this.updateFieldsVisibility();
+    }
+
+    updateFieldsVisibility() {
+        document.querySelectorAll('.url-field').forEach(field => field.classList.remove('visible'));
+        
+        switch(this.state.currentMarkerType) {
+            case 'link':
+                document.getElementById('markerLink').classList.add('visible');
+                break;
+            case 'video':
+                document.getElementById('markerVideo').classList.add('visible');
+                break;
+            case 'audio':
+                document.getElementById('markerAudio').classList.add('visible');
+                break;
+        }
+    }
+
+    resetForm() {
+        document.getElementById('markerTitle').value = '';
+        document.getElementById('markerDescription').value = '';
+        document.getElementById('markerLink').value = '';
+        document.getElementById('markerVideo').value = '';
+        document.getElementById('markerAudio').value = '';
+        document.getElementById('deleteMarkerBtn').style.display = 'none';
+        this.state.selectedMarkerId = null;
+        
+        document.querySelectorAll('.marker-type').forEach(el => el.classList.remove('selected'));
+        document.querySelector('.marker-type[data-type="info"]').classList.add('selected');
+        this.state.currentMarkerType = 'info';
+        this.updateFieldsVisibility();
+    }
+}
+
+class ImageManager360 {
+    constructor(state, markerManager) {
+        this.state = state;
+        this.markerManager = markerManager;
+        this.scene = null;
+        this.camera = null;
+        this.renderer = null;
+        this.sphere = null;
+        this.isMouseDown = false;
+        this.previousMousePosition = { x: 0, y: 0 };
+        this.targetRotation = new THREE.Euler(0, 0, 0, 'YXZ');
+    }
+
+    initThreeJS() {
+        this.scene = new THREE.Scene();
+        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        this.camera.position.set(0, 0, 0.1);
+        
+        this.renderer = new THREE.WebGLRenderer({ antialias: true });
+        this.renderer.setSize(document.getElementById('viewer').offsetWidth, document.getElementById('viewer').offsetHeight);
+        this.renderer.setPixelRatio(window.devicePixelRatio);
+        document.getElementById('viewer').appendChild(this.renderer.domElement);
+        
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        this.scene.add(ambientLight);
+        
+        window.camera = this.camera; // Make globally accessible
+        this.setupControls();
+        window.addEventListener('resize', () => this.onWindowResize());
+        this.animate();
+        
+        // Load default placeholder - no instructions in editor
+        this.createSphere('https://images.unsplash.com/photo-1519681393784-d120267933ba?w=2048&h=1024&fit=crop');
+    }
+
+    createSphere(imageUrl) {
+        if (this.sphere) {
+            this.scene.remove(this.sphere);
+            this.sphere.geometry.dispose();
+            this.sphere.material.dispose();
+        }
+        
+        const geometry = new THREE.SphereGeometry(500, 60, 40);
+        geometry.scale(-1, 1, 1);
+        
+        const texture = new THREE.TextureLoader().load(imageUrl);
+        const material = new THREE.MeshBasicMaterial({ map: texture });
+        this.sphere = new THREE.Mesh(geometry, material);
+        this.scene.add(this.sphere);
+    }
+
+    setupControls() {
+        const viewer = document.getElementById('viewer');
+        
+        // Mouse controls
+        viewer.addEventListener('mousedown', (e) => {
+            if (this.state.placementMode && e.button === 0) {
+                this.placeMarkerAtClick(e);
+                return;
+            }
+            
+            if (this.markerManager.draggingMarker) return;
+            
+            this.isMouseDown = true;
+            this.previousMousePosition = { x: e.clientX, y: e.clientY };
+            
+            // Check if clicking on a marker to drag
+            const rect = viewer.getBoundingClientRect();
+            const mouse = {
+                x: ((e.clientX - rect.left) / rect.width) * 2 - 1,
+                y: -((e.clientY - rect.top) / rect.height) * 2 + 1
+            };
+            
+            const intersectedMarker = this.markerManager.getIntersectedMarker({x: e.clientX, y: e.clientY}, this.camera);
+            if (intersectedMarker) {
+                this.startDraggingMarker(intersectedMarker, e);
+                e.preventDefault();
+                return;
+            }
+        });
+        
+        viewer.addEventListener('mousemove', (e) => {
+            if (this.markerManager.draggingMarker) {
+                this.dragMarker(e);
+                e.preventDefault();
+                return;
+            }
+            
+            if (!this.isMouseDown) return;
+            
+            const deltaX = e.clientX - this.previousMousePosition.x;
+            const deltaY = e.clientY - this.previousMousePosition.y;
+            
+            this.targetRotation.y -= deltaX * 0.005;
+            this.targetRotation.x -= deltaY * 0.005;
+            this.targetRotation.x = Math.max(-Math.PI/2.5, Math.min(Math.PI/2.5, this.targetRotation.x));
+            
+            const targetVector = new THREE.Vector3(0, 0, -1);
+            targetVector.applyEuler(this.targetRotation);
+            this.camera.lookAt(targetVector);
+            
+            this.previousMousePosition = { x: e.clientX, y: e.clientY };
+        });
+        
+        viewer.addEventListener('mouseup', () => {
+            if (this.markerManager.draggingMarker) {
+                this.stopDraggingMarker();
+                return;
+            }
+            this.isMouseDown = false;
+        });
+        
+        // Wheel for zoom
+        viewer.addEventListener('wheel', (e) => {
+            const zoomFactor = 1 + e.deltaY * 0.001;
+            this.camera.fov *= zoomFactor;
+            this.camera.fov = Math.max(30, Math.min(120, this.camera.fov));
+            this.camera.updateProjectionMatrix();
+        });
+        
+        // Touch support
+        viewer.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                this.isMouseDown = true;
+                this.previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            }
+        });
+        
+        viewer.addEventListener('touchmove', (e) => {
+            if (!this.isMouseDown || e.touches.length !== 1) return;
+            e.preventDefault();
+            
+            const deltaX = e.touches[0].clientX - this.previousMousePosition.x;
+            const deltaY = e.touches[0].clientY - this.previousMousePosition.y;
+            
+            this.targetRotation.y -= deltaX * 0.005;
+            this.targetRotation.x -= deltaY * 0.005;
+            this.targetRotation.x = Math.max(-Math.PI/2.5, Math.min(Math.PI/2.5, this.targetRotation.x));
+            
+            const targetVector = new THREE.Vector3(0, 0, -1);
+            targetVector.applyEuler(this.targetRotation);
+            this.camera.lookAt(targetVector);
+            
+            this.previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        });
+        
+        viewer.addEventListener('touchend', () => {
+            this.isMouseDown = false;
+        });
+    }
+
+    startDraggingMarker(marker, event) {
+        this.markerManager.isDragging = true;
+        this.markerManager.draggingMarker = marker;
+        this.state.dragStartPoint.set(event.clientX, event.clientY);
+        this.state.markerStartPosition.copy(marker.object.position);
+        
+        // Add visual feedback
+        if (marker.object) {
+            marker.object.material.opacity = 0.7;
+            marker.object.scale.set(36, 36, 1.2);
+        }
+    }
+
+    dragMarker(event) {
+        if (!this.markerManager.draggingMarker || !this.markerManager.draggingMarker.object) return;
+        
+        const deltaX = event.clientX - this.state.dragStartPoint.x;
+        const deltaY = event.clientY - this.state.dragStartPoint.y;
+        
+        // Calculate movement on sphere surface
+        const sensitivity = 0.01;
+        const movement = new THREE.Vector3(deltaX * sensitivity, -deltaY * sensitivity, 0);
+        
+        // Update marker position
+        const newPosition = this.state.markerStartPosition.clone().add(movement);
+        newPosition.normalize().multiplyScalar(500); // Keep on sphere surface
+        
+        this.markerManager.draggingMarker.object.position.copy(newPosition);
+        this.markerManager.draggingMarker.position = newPosition.toArray();
+    }
+
+    stopDraggingMarker() {
+        if (!this.markerManager.draggingMarker) return;
+        
+        // Update marker data
+        const marker = this.markerManager.draggingMarker;
+        this.state.updateMarker(marker.id, {
+            position: marker.object.position.toArray()
+        });
+        
+        // Restore visual state
+        if (marker.object) {
+            marker.object.material.opacity = 0.9;
+            marker.object.scale.set(30, 30, 1);
+        }
+        
+        this.markerManager.isDragging = false;
+        this.markerManager.draggingMarker = null;
+    }
+
+    placeMarkerAtClick(event) {
+        if (!this.state.currentImage || !this.state.placementMode) return;
+        
+        const rect = document.getElementById('viewer').getBoundingClientRect();
+        const mouse = {
+            x: ((event.clientX - rect.left) / rect.width) * 2 - 1,
+            y: -((event.clientY - rect.top) / rect.height) * 2 + 1
+        };
+        
+        const raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(new THREE.Vector2(mouse.x, mouse.y), this.camera);
+        
+        const intersects = raycaster.intersectObject(this.sphere);
+        if (intersects.length > 0) {
+            const position = intersects[0].point;
+            
+            // Create preview
+            this.markerManager.createPreviewMarker(position, this.state.currentMarkerType);
+            
+            // Create new marker data
+            const marker = {
+                id: Date.now() + Math.random(),
+                type: this.state.currentMarkerType,
+                title: `New ${this.state.currentMarkerType} Marker`,
+                description: '',
+                url: '',
+                position: position.toArray()
+            };
+            
+            this.state.selectedMarkerId = marker.id;
+            
+            // Populate form
+            document.getElementById('markerTitle').value = marker.title;
+            document.getElementById('markerDescription').value = '';
+            document.getElementById('markerLink').value = '';
+            document.getElementById('markerVideo').value = '';
+            document.getElementById('markerAudio').value = '';
+            document.getElementById('deleteMarkerBtn').style.display = 'none';
+            
+            // Exit placement mode
+            this.state.placementMode = false;
+            document.getElementById('placeMarkerBtn').innerHTML = '<i class="fas fa-map-marker-alt"></i>';
+            document.getElementById('placeMarkerBtn').title = 'Place Marker Mode';
+        }
+    }
+
+    onWindowResize() {
+        this.camera.aspect = document.getElementById('viewer').offsetWidth / document.getElementById('viewer').offsetHeight;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(document.getElementById('viewer').offsetWidth, document.getElementById('viewer').offsetHeight);
+        
+        // Reposition active info panel
+        if (this.state.activeInfoPanel) {
+            const markerId = this.state.activeInfoPanel.dataset.markerId;
+            if (markerId) {
+                const marker = this.state.getMarker(markerId);
+                if (marker) {
+                    this.markerManager.positionInfoPanelAtMarker(this.state.activeInfoPanel, marker);
+                }
+            }
+        }
+    }
+
+    animate() {
+        requestAnimationFrame(() => this.animate());
+        
+        if (this.state.autoRotate) {
+            this.camera.rotation.y += 0.002;
+            this.camera.rotation.x = Math.max(-Math.PI/4, Math.min(Math.PI/4, this.camera.rotation.x));
+        }
+        
+        this.renderer.render(this.scene, this.camera);
+    }
+}
+
+class ExportManager360 {
+    constructor(state) {
+        this.state = state;
+    }
+
+    generateExportCode(projectName, options = {}) {
+        const { responsive = true, smartPositioning = true } = options;
+        
+        const markersData = JSON.stringify(this.state.markers.map(marker => ({
+            id: marker.id,
+            type: marker.type,
+            title: marker.title,
+            description: marker.description,
+            url: marker.url,
+            position: marker.position,
+            color: this.state.markerThemes[marker.type].color
+        })));
+        
+        // Simple HTML escape function
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        const safeImageName = escapeHtml(projectName || '360° Viewer');
+        
+        return `<!DOCTYPE html>
+<html>
+<head>
+    <title>${safeImageName}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        canvas { display: block; }
+        .marker-info-panel { 
+            position: absolute; 
+            background: rgba(0,0,0,0.95); 
+            color: white; 
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #00b4d8;
+            max-width: 300px;
+            min-width: 250px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.7);
+            z-index: 1000;
+            pointer-events: auto;
+            backdrop-filter: blur(5px);
+            transition: opacity 0.3s ease;
+            font-size: 14px;
+        }
+        .marker-info-panel h4 {
+            color: #00b4d8;
+            margin: 0 0 10px 0;
+            font-size: 16px;
+        }
+        .marker-info-panel a {
+            color: #4cc9f0;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 10px;
+            padding: 6px 12px;
+            background: rgba(76, 201, 240, 0.1);
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        .marker-info-panel .close-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: transparent;
+            border: none;
+            color: #aaa;
+            cursor: pointer;
+            font-size: 18px;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        .hidden { display: none; }
+        
+        /* Instructions - ONLY IN EXPORTED FILE */
+        .instructions {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background: rgba(0, 0, 0, 0.95);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            border: 2px solid #00b4d8;
+            z-index: 20;
+        }
+        
+        .instructions h3 {
+            color: #00b4d8;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .instructions p {
+            margin: 10px 0;
+            line-height: 1.5;
+        }
+        
+        .instructions button {
+            margin-top: 15px; 
+            padding: 10px 20px; 
+            background: #00b4d8; 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        
+        .instructions button:hover {
+            background: #0077b6;
+        }
+        
+        ${responsive ? '@media (max-width: 768px) { .marker-info-panel, .instructions { max-width: 90vw; } }' : ''}
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+    
+    <!-- INSTRUCTIONS - ONLY IN EXPORTED FILES -->
+    <div class="instructions" id="instructions">
+        <i class="fas fa-globe-americas" style="font-size: 48px; color: #00b4d8; margin-bottom: 20px;"></i>
+        <h3>360° Image Viewer</h3>
+        <p><strong>${safeImageName}</strong></p>
+        <p>Drag to look around • Scroll to zoom</p>
+        <p>Click on markers for information</p>
+        <button id="startBtn">Start Exploring</button>
+    </div>
+
+    <script>
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('container').appendChild(renderer.domElement);
+        
+        const geometry = new THREE.SphereGeometry(500, 60, 40);
+        geometry.scale(-1, 1, 1);
+        
+        const textureLoader = new THREE.TextureLoader();
+        const texture = textureLoader.load('${this.state.currentImage ? this.state.currentImage.data : ''}');
+        
+        const material = new THREE.MeshBasicMaterial({ map: texture });
+        const sphere = new THREE.Mesh(geometry, material);
+        scene.add(sphere);
+        
+        const markers = ${markersData};
+        let activeInfoPanel = null;
+        
+        markers.forEach(marker => {
+            const canvas = document.createElement('canvas');
+            const size = 64;
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // Draw marker icon
+            ctx.beginPath();
+            ctx.arc(size/2, size/2, size/2 - 4, 0, Math.PI * 2);
+            ctx.fillStyle = '#' + marker.color.toString(16).padStart(6, '0');
+            ctx.fill();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            
+            // Draw icon based on type
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 32px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            const iconChar = {
+                info: 'ⓘ',
+                link: '🔗',
+                video: '▶',
+                audio: '♪',
+                warning: '⚠',
+                question: '?'
+            }[marker.type];
+            
+            ctx.fillText(iconChar, size/2, size/2);
+            
+            // Create sprite
+            const markerTexture = new THREE.CanvasTexture(canvas);
+            const spriteMaterial = new THREE.SpriteMaterial({ 
+                map: markerTexture,
+                transparent: true,
+                opacity: 0.9,
+                depthWrite: false,
+                depthTest: false,
+                alphaTest: 0.1
+            });
+            const sprite = new THREE.Sprite(spriteMaterial);
+            sprite.position.set(marker.position[0], marker.position[1], marker.position[2]);
+            sprite.scale.set(30, 30, 1);
+            sprite.userData = marker;
+            sprite.renderOrder = 999;
+            scene.add(sprite);
+        });
+        
+        camera.position.set(0, 0, 0.1);
+        
+        let isMouseDown = false;
+        let previousMousePosition = { x: 0, y: 0 };
+        let targetRotation = new THREE.Euler(0, 0, 0, 'YXZ');
+        
+        // Mouse controls
+        document.addEventListener('mousedown', (e) => {
+            isMouseDown = true;
+            previousMousePosition = { x: e.clientX, y: e.clientY };
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (!isMouseDown) return;
+            
+            const deltaX = e.clientX - previousMousePosition.x;
+            const deltaY = e.clientY - previousMousePosition.y;
+            
+            targetRotation.y -= deltaX * 0.005;
+            targetRotation.x -= deltaY * 0.005;
+            targetRotation.x = Math.max(-Math.PI/2.5, Math.min(Math.PI/2.5, targetRotation.x));
+            
+            const targetVector = new THREE.Vector3(0, 0, -1);
+            targetVector.applyEuler(targetRotation);
+            camera.lookAt(targetVector);
+            
+            previousMousePosition = { x: e.clientX, y: e.clientY };
+        });
+        
+        document.addEventListener('mouseup', () => { isMouseDown = false; });
+        
+        document.addEventListener('wheel', (e) => {
+            const zoomFactor = 1 + e.deltaY * 0.001;
+            camera.fov *= zoomFactor;
+            camera.fov = Math.max(30, Math.min(120, camera.fov));
+            camera.updateProjectionMatrix();
+        });
+        
+        // Hide instructions when clicking start
+        document.getElementById('startBtn').addEventListener('click', () => {
+            document.getElementById('instructions').classList.add('hidden');
+        });
+        
+        // Auto-hide instructions after 5 seconds
+        setTimeout(() => {
+            document.getElementById('instructions').classList.add('hidden');
+        }, 5000);
+        
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        
+        function removeInfoPanel() {
+            if (activeInfoPanel) {
+                activeInfoPanel.remove();
+                activeInfoPanel = null;
+            }
+        }
+        
+        function onMouseClick(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            
+            raycaster.setFromCamera(mouse, camera);
+            const markerObjects = scene.children.filter(obj => obj !== sphere);
+            const intersects = raycaster.intersectObjects(markerObjects);
+            
+            if (intersects.length > 0) {
+                const marker = intersects[0].object.userData;
+                removeInfoPanel();
+                
+                const infoPanel = document.createElement('div');
+                infoPanel.className = 'marker-info-panel';
+                
+                let content = '<button class="close-btn">&times;</button>';
+                content += '<h4>' + marker.title + '</h4>';
+                
+                if (marker.description) {
+                    content += '<p>' + marker.description + '</p>';
+                }
+                
+                if (marker.url) {
+                    let linkText = 'Open Link';
+                    if (marker.type === 'video') linkText = 'Watch Video';
+                    else if (marker.type === 'audio') linkText = 'Play Audio';
+                    
+                    content += '<a href="' + marker.url + '" target="_blank">' + linkText + '</a>';
+                }
+                
+                infoPanel.innerHTML = content;
+                document.body.appendChild(infoPanel);
+                activeInfoPanel = infoPanel;
+                
+                // Position panel
+                const markerPosition = new THREE.Vector3(marker.position[0], marker.position[1], marker.position[2]);
+                const vector = markerPosition.clone();
+                vector.project(camera);
+                
+                const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
+                const y = (-vector.y * 0.5 + 0.5) * window.innerHeight;
+                
+                let left = x + 20;
+                let top = y + 20;
+                
+                ${smartPositioning ? `
+                if (left + infoPanel.offsetWidth > window.innerWidth) left = x - infoPanel.offsetWidth - 20;
+                if (top + infoPanel.offsetHeight > window.innerHeight) top = y - infoPanel.offsetHeight - 20;
+                left = Math.max(10, Math.min(window.innerWidth - infoPanel.offsetWidth - 10, left));
+                top = Math.max(10, Math.min(window.innerHeight - infoPanel.offsetHeight - 10, top));
+                ` : ''}
+                
+                infoPanel.style.left = left + 'px';
+                infoPanel.style.top = top + 'px';
+                
+                infoPanel.querySelector('.close-btn').addEventListener('click', removeInfoPanel);
+                
+                setTimeout(() => {
+                    if (activeInfoPanel === infoPanel) removeInfoPanel();
+                }, 10000);
+            } else {
+                removeInfoPanel();
+            }
+        }
+        
+        document.addEventListener('click', onMouseClick);
+        
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+        animate();
+    <\/script>
+</body>
+</html>`;
+    }
+}
+
+class Application360 {
+    constructor() {
+        this.state = new AppState360();
+        this.imageManager = new ImageManager360(this.state, null);
+        this.markerManager = new MarkerManager360(this.state, this.imageManager.scene);
+        this.imageManager.markerManager = this.markerManager;
+        this.exportManager = new ExportManager360(this.state);
+        
+        this.initialize();
+    }
+
+    initialize() {
+        this.setupEventListeners();
+        this.setupKeyboardShortcuts();
+        this.imageManager.initThreeJS();
+        this.state.saveToHistory();
+    }
+
+    setupEventListeners() {
+        // File upload
+        document.getElementById('uploadArea').addEventListener('click', () => {
+            document.getElementById('fileInput').click();
+        });
+
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+            if (e.target.files[0]) {
+                this.loadImage(e.target.files[0]);
+            }
+        });
+
+        // Drag and drop for file upload
+        const uploadArea = document.getElementById('uploadArea');
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            if (e.dataTransfer.files[0]) {
+                this.loadImage(e.dataTransfer.files[0]);
+            }
+        });
+
+        // Marker type selection
+        document.querySelectorAll('.marker-type').forEach(type => {
+            type.addEventListener('click', () => {
+                document.querySelectorAll('.marker-type').forEach(t => t.classList.remove('selected'));
+                type.classList.add('selected');
+                this.state.currentMarkerType = type.dataset.type;
+                this.markerManager.updateFieldsVisibility();
+            });
+        });
+
+        // Buttons
+        document.getElementById('placeMarkerBtn').addEventListener('click', () => this.togglePlacementMode());
+        document.getElementById('saveMarkerBtn').addEventListener('click', () => this.saveMarker());
+        document.getElementById('cancelMarkerBtn').addEventListener('click', () => this.cancelMarker());
+        document.getElementById('deleteMarkerBtn').addEventListener('click', () => this.deleteMarker());
+        document.getElementById('clearMarkersBtn').addEventListener('click', () => this.clearAllMarkers());
+        document.getElementById('resetViewBtn').addEventListener('click', () => this.resetView());
+        document.getElementById('autoRotateBtn').addEventListener('click', () => this.toggleAutoRotate());
+        document.getElementById('exportBtn').addEventListener('click', () => this.exportProject());
+        document.getElementById('saveProjectBtn').addEventListener('click', () => this.saveProject());
+        document.getElementById('loadProjectBtn').addEventListener('click', () => this.loadProject());
+
+        // Export modal
+        document.getElementById('copyCodeBtn').addEventListener('click', () => this.copyExportCode());
+        document.getElementById('downloadBtn').addEventListener('click', () => this.downloadExportFile());
+        document.getElementById('closeExportBtn').addEventListener('click', () => {
+            document.getElementById('exportModal').classList.add('hidden');
+        });
+
+        // Project modal
+        document.getElementById('saveProjectConfirmBtn').addEventListener('click', () => this.saveProjectToFile());
+        document.getElementById('closeProjectBtn').addEventListener('click', () => {
+            document.getElementById('projectModal').classList.add('hidden');
+        });
+        
+        document.getElementById('projectUploadArea').addEventListener('click', () => {
+            document.getElementById('projectFileInput').click();
+        });
+        
+        document.getElementById('projectFileInput').addEventListener('change', (e) => {
+            if (e.target.files[0]) {
+                this.loadProjectFromFile(e.target.files[0]);
+            }
+        });
+        
+        document.getElementById('clearProjectsBtn').addEventListener('click', () => this.clearProjectData());
+
+        // Search
+        document.getElementById('markerSearch').addEventListener('input', () => {
+            this.markerManager.updateMarkerList();
+        });
+
+        // History controls
+        document.getElementById('undoBtn').addEventListener('click', () => this.undo());
+        document.getElementById('redoBtn').addEventListener('click', () => this.redo());
+    }
+
+    setupKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key.toLowerCase()) {
+                    case 's':
+                        e.preventDefault();
+                        this.saveProject();
+                        break;
+                    case 'o':
+                        e.preventDefault();
+                        this.loadProject();
+                        break;
+                    case 'e':
+                        e.preventDefault();
+                        this.exportProject();
+                        break;
+                    case 'z':
+                        e.preventDefault();
+                        this.undo();
+                        break;
+                    case 'y':
+                        e.preventDefault();
+                        this.redo();
+                        break;
+                }
+            }
+            
+            if (e.key === 'Delete' && this.state.selectedMarkerId) {
+                this.deleteMarker();
+            }
+            
+            if (e.key === 'Escape') {
+                this.cancelMarker();
+                if (this.state.activeInfoPanel) {
+                    this.state.activeInfoPanel.remove();
+                    this.state.activeInfoPanel = null;
+                }
+            }
+            
+            if (e.key === 'p' || e.key === 'P') {
+                e.preventDefault();
+                this.togglePlacementMode();
+            }
+        });
+    }
+
+    async loadImage(file) {
+        if (!file.type.match('image.*')) {
+            alert('Please select an image file (JPG, PNG, etc.)');
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            this.state.currentImage = {
+                name: file.name,
+                data: e.target.result
+            };
+            
+            this.imageManager.createSphere(e.target.result);
+            document.getElementById('currentImageName').textContent = file.name;
+            document.getElementById('imageInfo').classList.remove('hidden');
+            
+            // Clear existing markers
+            this.state.markers.forEach(marker => {
+                if (marker.object) {
+                    this.imageManager.scene.remove(marker.object);
+                }
+            });
+            this.state.markers = [];
+            this.markerManager.updateMarkerList();
+            
+            // Exit placement mode if active
+            this.state.placementMode = false;
+            document.getElementById('placeMarkerBtn').innerHTML = '<i class="fas fa-map-marker-alt"></i>';
+            document.getElementById('placeMarkerBtn').title = 'Place Marker Mode';
+            
+            // Remove preview marker
+            this.markerManager.removePreviewMarker();
+            
+            this.state.saveToHistory();
+        };
+        reader.onerror = () => { alert('Error reading file. Please try again.'); };
+        reader.readAsDataURL(file);
+    }
+
+    togglePlacementMode() {
+        if (!this.state.currentImage) {
+            alert('Please upload an image first.');
+            return;
+        }
+        
+        this.state.placementMode = !this.state.placementMode;
+        
+        if (this.state.placementMode) {
+            document.getElementById('placeMarkerBtn').innerHTML = '<i class="fas fa-times"></i>';
+            document.getElementById('placeMarkerBtn').title = 'Exit Placement Mode';
+        } else {
+            document.getElementById('placeMarkerBtn').innerHTML = '<i class="fas fa-map-marker-alt"></i>';
+            document.getElementById('placeMarkerBtn').title = 'Place Marker Mode';
+        }
+    }
+
+    saveMarker() {
+        if (!this.state.selectedMarkerId) {
+            alert('Please place a marker first by clicking on the image.');
+            return;
+        }
+        
+        const title = document.getElementById('markerTitle').value.trim();
+        const description = document.getElementById('markerDescription').value.trim();
+        const link = document.getElementById('markerLink').value.trim();
+        const video = document.getElementById('markerVideo').value.trim();
+        const audio = document.getElementById('markerAudio').value.trim();
+        
+        if (!title) {
+            alert('Please enter a marker title.');
+            return;
+        }
+        
+        const url = link || video || audio;
+        
+        // Find if we're editing existing or creating new
+        let marker = this.state.getMarker(this.state.selectedMarkerId);
+        
+        if (marker) {
+            // Update existing marker
+            this.state.updateMarker(marker.id, {
+                title,
+                description,
+                url,
+                type: this.state.currentMarkerType
+            });
+            
+            // Update the marker object
+            this.markerManager.createMarkerObject(marker);
+        } else {
+            // Create new marker from preview
+            const previewPosition = this.markerManager.previewMarker.position.toArray();
+            marker = {
+                id: this.state.selectedMarkerId,
+                type: this.state.currentMarkerType,
+                title,
+                description,
+                url,
+                position: previewPosition
+            };
+            
+            this.state.addMarker(marker);
+            this.markerManager.createMarkerObject(marker);
+        }
+        
+        // Remove preview marker
+        this.markerManager.removePreviewMarker();
+        
+        this.markerManager.updateMarkerList();
+        this.markerManager.resetForm();
+        
+        alert('Marker saved!');
+    }
+
+    cancelMarker() {
+        this.markerManager.removePreviewMarker();
+        this.markerManager.resetForm();
+        this.state.placementMode = false;
+        document.getElementById('placeMarkerBtn').innerHTML = '<i class="fas fa-map-marker-alt"></i>';
+        document.getElementById('placeMarkerBtn').title = 'Place Marker Mode';
+    }
+
+    deleteMarker() {
+        if (this.state.selectedMarkerId && confirm('Delete this marker?')) {
+            const marker = this.state.getMarker(this.state.selectedMarkerId);
+            if (marker && marker.object) {
+                this.imageManager.scene.remove(marker.object);
+            }
+            this.state.deleteMarker(this.state.selectedMarkerId);
+            this.markerManager.updateMarkerList();
+            this.markerManager.resetForm();
+            
+            if (this.state.activeInfoPanel) {
+                this.state.activeInfoPanel.remove();
+                this.state.activeInfoPanel = null;
+            }
+        }
+    }
+
+    clearAllMarkers() {
+        if (this.state.markers.length === 0) return;
+        
+        if (confirm(`Are you sure you want to remove all ${this.state.markers.length} markers?`)) {
+            this.state.markers.forEach(marker => {
+                if (marker.object) {
+                    this.imageManager.scene.remove(marker.object);
+                }
+            });
+            this.state.clearMarkers();
+            this.markerManager.updateMarkerList();
+            
+            if (this.state.activeInfoPanel) {
+                this.state.activeInfoPanel.remove();
+                this.state.activeInfoPanel = null;
+            }
+        }
+    }
+
+    resetView() {
+        this.imageManager.camera.rotation.set(0, 0, 0);
+        this.imageManager.camera.fov = 75;
+        this.imageManager.camera.updateProjectionMatrix();
+        this.imageManager.targetRotation.set(0, 0, 0);
+        
+        if (this.state.activeInfoPanel) {
+            this.state.activeInfoPanel.remove();
+            this.state.activeInfoPanel = null;
+        }
+    }
+
+    toggleAutoRotate() {
+        this.state.autoRotate = !this.state.autoRotate;
+        const btn = document.getElementById('autoRotateBtn');
+        btn.innerHTML = this.state.autoRotate ? 
+            '<i class="fas fa-stop-circle"></i>' : 
+            '<i class="fas fa-sync"></i>';
+        btn.title = this.state.autoRotate ? 'Stop Auto-Rotate' : 'Toggle Auto-Rotate';
+    }
+
+    undo() {
+        if (this.state.undo()) {
+            // Remove all existing marker objects from scene
+            this.state.markers.forEach(marker => {
+                if (marker.object) {
+                    this.imageManager.scene.remove(marker.object);
+                    marker.object = null;
+                }
+            });
+            
+            // Re-create markers
+            this.markerManager.renderAllMarkers();
+            this.markerManager.updateMarkerList();
+            this.markerManager.resetForm();
+        }
+    }
+
+    redo() {
+        if (this.state.redo()) {
+            // Remove all existing marker objects from scene
+            this.state.markers.forEach(marker => {
+                if (marker.object) {
+                    this.imageManager.scene.remove(marker.object);
+                    marker.object = null;
+                }
+            });
+            
+            // Re-create markers
+            this.markerManager.renderAllMarkers();
+            this.markerManager.updateMarkerList();
+            this.markerManager.resetForm();
+        }
+    }
+
+    exportProject() {
+        if (!this.state.currentImage) {
+            alert('Please upload an image first.');
+            return;
+        }
+        
+        if (this.state.markers.length === 0) {
+            if (!confirm('No markers added. Export image only?')) return;
+        }
+        
+        const projectName = prompt('Project name for export:', 
+            this.state.currentImage.name.replace(/\.[^/.]+$/, "") || '360° Interactive Image');
+        if (!projectName) return;
+        
+        const responsive = confirm('Enable responsive design for mobile devices?');
+        const smartPositioning = confirm('Use smart popup positioning (avoid off-screen popups)?');
+        
+        const html = this.exportManager.generateExportCode(projectName, { 
+            responsive, 
+            smartPositioning 
+        });
+        
+        document.getElementById('exportCode').value = html;
+        document.getElementById('exportModal').classList.remove('hidden');
+    }
+
+    copyExportCode() {
+        const exportCode = document.getElementById('exportCode');
+        exportCode.select();
+        exportCode.setSelectionRange(0, 99999);
+        
+        try {
+            navigator.clipboard.writeText(exportCode.value).then(() => {
+                alert('Code copied to clipboard! Save it as an HTML file.');
+            });
+        } catch (err) {
+            try {
+                document.execCommand('copy');
+                alert('Code copied to clipboard! Save it as an HTML file.');
+            } catch (err) {
+                alert('Failed to copy code. Please select and copy manually.');
+            }
+        }
+    }
+
+    downloadExportFile() {
+        const exportCode = document.getElementById('exportCode').value;
+        const blob = new Blob([exportCode], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        
+        const projectName = this.state.currentImage?.name.replace(/\.[^/.]+$/, "") || '360-viewer';
+        a.download = `${projectName}.html`;
+        
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    saveProject() {
+        if (!this.state.currentImage) {
+            alert('Please upload an image first.');
+            return;
+        }
+        
+        document.getElementById('projectName').value = this.state.currentImage.name.replace(/\.[^/.]+$/, "") || 'My360Project';
+        document.getElementById('projectModal').classList.remove('hidden');
+        this.loadSavedProjectsList();
+    }
+
+    loadProject() {
+        document.getElementById('projectModal').classList.remove('hidden');
+        this.loadSavedProjectsList();
+    }
+
+    saveProjectToFile() {
+        const projectName = document.getElementById('projectName').value.trim();
+        if (!projectName) {
+            alert('Please enter a project name.');
+            return;
+        }
+        
+        const projectData = {
+            version: '1.0',
+            name: projectName,
+            timestamp: new Date().toISOString(),
+            image: this.state.currentImage,
+            markers: this.state.markers.map(marker => ({
+                id: marker.id,
+                type: marker.type,
+                title: marker.title,
+                description: marker.description,
+                url: marker.url,
+                position: marker.position
+            }))
+        };
+        
+        const jsonStr = JSON.stringify(projectData, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${projectName.replace(/[^a-z0-9]/gi, '_')}_360project.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        this.saveProjectToLocalStorage(projectData);
+        
+        alert(`Project saved as: ${a.download}`);
+        document.getElementById('projectModal').classList.add('hidden');
+    }
+
+    loadProjectFromFile(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const projectData = JSON.parse(e.target.result);
+                this.loadProjectData(projectData);
+            } catch (error) {
+                alert('Error loading project file. Please make sure it\'s a valid project file from this tool.');
+                console.error('Project load error:', error);
+            }
+        };
+        reader.onerror = () => {
+            alert('Error reading project file. Please try again.');
+        };
+        reader.readAsText(file);
+    }
+
+    loadProjectData(projectData) {
+        // Clear existing markers
+        this.clearAllMarkers();
+        
+        // Load image
+        if (projectData.image && projectData.image.data) {
+            this.state.currentImage = projectData.image;
+            this.imageManager.createSphere(projectData.image.data);
+            document.getElementById('currentImageName').textContent = projectData.image.name || 'Loaded Project';
+            document.getElementById('imageInfo').classList.remove('hidden');
+        }
+        
+        // Load markers
+        if (projectData.markers && Array.isArray(projectData.markers)) {
+            this.state.markers = projectData.markers.map(markerData => ({
+                ...markerData,
+                object: null
+            }));
+            
+            this.markerManager.renderAllMarkers();
+            this.markerManager.updateMarkerList();
+        }
+        
+        document.getElementById('projectModal').classList.add('hidden');
+        alert(`Project "${projectData.name}" loaded successfully!`);
+        
+        this.state.saveToHistory();
+    }
+
+    saveProjectToLocalStorage(projectData) {
+        try {
+            const savedProjects = JSON.parse(localStorage.getItem('360Projects') || '[]');
+            const existingIndex = savedProjects.findIndex(p => p.name === projectData.name);
+            if (existingIndex !== -1) {
+                savedProjects[existingIndex] = projectData;
+            } else {
+                savedProjects.push(projectData);
+            }
+            
+            const recentProjects = savedProjects.slice(-10);
+            localStorage.setItem('360Projects', JSON.stringify(recentProjects));
+            return true;
+        } catch (error) {
+            console.error('Error saving to localStorage:', error);
+            return false;
+        }
+    }
+
+    loadSavedProjectsList() {
+        const projectsList = document.getElementById('savedProjectsList');
+        projectsList.innerHTML = '';
+        
+        try {
+            const savedProjects = JSON.parse(localStorage.getItem('360Projects') || '[]');
+            
+            if (savedProjects.length === 0) {
+                projectsList.innerHTML = '<p style="color: #aaa; text-align: center; padding: 20px;">No saved projects found</p>';
+                return;
+            }
+            
+            savedProjects.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            savedProjects.forEach(project => {
+                const projectItem = document.createElement('div');
+                projectItem.className = 'project-item';
+                
+                const date = new Date(project.timestamp);
+                const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                projectItem.innerHTML = `
+                    <div class="project-item-header">
+                        <div class="project-item-title">
+                            <i class="fas fa-project-diagram"></i>
+                            ${project.name}
+                        </div>
+                        <span class="marker-item-type">${project.markers?.length || 0} markers</span>
+                    </div>
+                    <div class="project-item-meta">
+                        ${project.image?.name || 'No image name'} • ${dateStr}
+                    </div>
+                `;
+                
+                projectItem.addEventListener('click', () => {
+                    if (confirm(`Load project "${project.name}"? This will replace your current work.`)) {
+                        this.loadProjectData(project);
+                    }
+                });
+                
+                projectsList.appendChild(projectItem);
+            });
+        } catch (error) {
+            console.error('Error loading projects list:', error);
+            projectsList.innerHTML = '<p style="color: #e63946; text-align: center; padding: 20px;">Error loading saved projects</p>';
+        }
+    }
+
+    clearProjectData() {
+        if (confirm('Clear all project data? This will remove all saved projects from this browser.')) {
+            localStorage.removeItem('360Projects');
+            this.loadSavedProjectsList();
+            alert('All saved projects have been cleared.');
+        }
+    }
+}
+
+// ====================== START APPLICATION ======================
+document.addEventListener('DOMContentLoaded', () => {
+    window.app360 = new Application360();
+});
+</script>
+</body>
+</html>
